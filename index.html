@@ -8,75 +8,72 @@
 
 <link rel="stylesheet" href="css/style.css">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ff4d6d">
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 
 <body>
 
-<!-- SPLASH -->
-<div id="splash">
-    <img src="img/Logo.png">
-    <h2>Consórcio App</h2>
-</div>
+<div class="app">
 
-<!-- LOGIN -->
-<div id="login" class="tela ativa">
-    <div class="card login-card">
+    <!-- CARD CENTRAL -->
+    <div class="card">
+
+        <!-- LOGO FIXA -->
         <img src="img/Logo.png" class="logo">
-        <h2>Login</h2>
-        <input id="email" placeholder="Email">
-        <input id="senha" type="password" placeholder="Senha">
-        <button onclick="login()">Entrar</button>
+
+        <!-- LOGIN -->
+        <div id="login">
+            <h2>Login</h2>
+            <input id="email" placeholder="Email">
+            <input id="senha" type="password" placeholder="Senha">
+            <button onclick="login()">Entrar</button>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="hidden">
+            <h2>Consórcios</h2>
+
+            <button onclick="abrirCadastro()">+ Novo</button>
+
+            <div id="listaConsorcios"></div>
+
+            <button onclick="logout()">Sair</button>
+        </div>
+
+        <!-- CADASTRO -->
+        <div id="cadastro" class="hidden">
+
+            <h3>Novo Consórcio</h3>
+
+            <input id="nome" placeholder="Nome do consórcio">
+            <input id="qtd" type="number" placeholder="Participantes">
+            <input id="inicio" type="date">
+            <input id="fim" type="date">
+
+            <button onclick="gerarParticipantes()">Gerar nomes</button>
+
+            <div id="participantes"></div>
+
+            <button onclick="salvarConsorcio()">Salvar</button>
+            <button onclick="voltar()">Voltar</button>
+
+        </div>
+
+        <!-- SORTEIO -->
+        <div id="sorteio" class="hidden">
+
+            <h2 id="titulo"></h2>
+
+            <div class="nome" id="nomeSorteado"></div>
+            <div class="mes" id="mesSorteado"></div>
+
+            <button onclick="sortear()">Sortear</button>
+            <button onclick="voltar()">Voltar</button>
+
+        </div>
+
     </div>
-</div>
-
-<!-- DASHBOARD -->
-<div id="dashboard" class="tela">
-
-    <div class="topo">
-        <img src="img/Logo.png" class="logo">
-        <h2>Meus Consórcios</h2>
-    </div>
-
-    <button class="btn-principal" onclick="abrirCadastro()">+ Novo Consórcio</button>
-
-    <div id="listaConsorcios"></div>
-
-    <button class="btn-secundario" onclick="logout()">Sair</button>
-</div>
-
-<!-- CADASTRO -->
-<div id="cadastro" class="tela">
-
-    <h3>Novo Consórcio</h3>
-
-    <input id="nome" placeholder="Nome do consórcio">
-    <input id="qtd" type="number" placeholder="Número de participantes">
-    <input id="inicio" type="date">
-    <input id="fim" type="date">
-
-    <button onclick="gerarParticipantes()">Gerar participantes</button>
-
-    <div id="participantes"></div>
-
-    <button class="btn-principal" onclick="salvarConsorcio()">Salvar</button>
-    <button class="btn-secundario" onclick="voltar()">Voltar</button>
-
-</div>
-
-<!-- SORTEIO -->
-<div id="sorteio" class="tela sorteio">
-
-    <h2 id="titulo"></h2>
-
-    <div class="nome" id="nomeSorteado"></div>
-    <div class="mes" id="mesSorteado"></div>
-
-    <button class="btn-principal" onclick="sortear()">Sortear</button>
-    <button onclick="exportarTexto()">Exportar</button>
-    <button class="btn-secundario" onclick="voltar()">Voltar</button>
 
 </div>
 
