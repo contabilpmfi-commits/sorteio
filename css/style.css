@@ -1,0 +1,47 @@
+body {
+    margin: 0;
+    font-family: Arial;
+    background: linear-gradient(135deg,#ff9a9e,#fad0c4);
+    display:flex;
+    justify-content:center;
+}
+
+.container {
+    max-width:420px;
+    width:100%;
+    padding:15px;
+}
+
+.logo {
+    width:140px;
+    display:block;
+    margin:auto;
+}
+
+.box {
+    background:white;
+    padding:15px;
+    border-radius:15px;
+    margin-top:10px;
+}
+
+input {
+    width:100%;
+    padding:10px;
+    margin:5px 0;
+}
+
+button {
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:20px;
+    background:#ff4d6d;
+    color:white;
+    margin-top:8px;
+}
+
+#areaPrint {
+    max-height:300px;
+    overflow-y:auto;
+}
