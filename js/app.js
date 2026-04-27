@@ -8,8 +8,6 @@ import {
 
 import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import { gerarMeses, sortearItem } from "./sorteio.js";
-
 /* LOGIN */
 window.login = async ()=>{
     try{
@@ -20,8 +18,8 @@ window.login = async ()=>{
 };
 
 onAuthStateChanged(auth,(u)=>{
-    loginBox.style.display = u ? "none":"block";
-    app.style.display = u ? "block":"none";
+    document.getElementById("loginBox").style.display = u ? "none":"block";
+    document.getElementById("app").style.display = u ? "block":"none";
 });
 
 window.logout = ()=> signOut(auth);
@@ -34,18 +32,52 @@ window.gerar = ()=>{
     }
 };
 
+/* GERAR MESES (CORRIGIDO) */
+function gerarMeses(inicio, fim){
+
+    let meses = [];
+
+    let [anoI, mesI] = inicio.split("-");
+    let [anoF, mesF] = fim.split("-");
+
+    let data = new Date(anoI, mesI - 1, 1);
+    let fimDate = new Date(anoF, mesF - 1, 1);
+
+    while(data <= fimDate){
+        meses.push(
+            data.toLocaleDateString('pt-BR',{
+                month:'long',
+                year:'numeric'
+            })
+        );
+
+        data.setMonth(data.getMonth() + 1);
+    }
+
+    return meses;
+}
+
+/* SORTEIO */
+function sortearItem(lista, usados){
+    let disponiveis = lista.filter(p=>!usados.includes(p));
+    return disponiveis[Math.floor(Math.random()*disponiveis.length)];
+}
+
 let pessoas=[], meses=[], usados=[];
 
+/* INICIAR */
 window.preparar = ()=>{
     pessoas=[...document.querySelectorAll(".p")].map(e=>e.value);
     meses=gerarMeses(inicio.value,fim.value);
     usados=[];
     historico.innerHTML="";
+    tituloPrint.innerText = nome.value;
 };
 
+/* SORTEAR */
 window.sortear = async ()=>{
     if(usados.length === pessoas.length){
-        alert("Finalizado");
+        alert("Todos já foram sorteados!");
         return;
     }
 
@@ -63,18 +95,19 @@ window.sortear = async ()=>{
         uid:auth.currentUser.uid
     });
 
-    confetti();
+    confetti({particleCount:100,spread:70});
 };
 
-/* PRINT */
+/* IMAGEM */
 window.gerarImagem = async ()=>{
-    let canvas = await html2canvas(areaPrint);
+    let canvas = await html2canvas(document.getElementById("areaPrint"));
     let link = document.createElement("a");
     link.download="sorteio.png";
     link.href=canvas.toDataURL();
     link.click();
 };
 
+/* WHATS */
 window.enviarWhats = ()=>{
     window.open("https://wa.me/?text=" + encodeURIComponent(historico.innerText));
 };
