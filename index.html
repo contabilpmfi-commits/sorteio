@@ -3,73 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema de Consórcio</title>
+<title>Consórcio</title>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <style>
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     background: linear-gradient(135deg,#ff9a9e,#fad0c4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
 }
-
-.container {
-    width: 100%;
-    max-width: 400px;
-    padding: 20px;
-    text-align: center;
-}
-
-.logo {
-    width: 150px;
-    margin-bottom: 10px;
-}
+.container { max-width:400px;width:100%;padding:20px;text-align:center;}
+.logo { width:150px;margin-bottom:10px;}
 
 .box {
-    background: white;
-    padding: 25px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    margin-top:10px;
 }
 
 input {
-    width: 100%;
-    padding: 12px;
-    margin: 8px 0;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
+    width:100%;
+    padding:10px;
+    margin:5px 0;
+    box-sizing:border-box;
 }
 
 button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 25px;
-    background: linear-gradient(45deg,#ff4d6d,#ff758f);
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 10px;
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:20px;
+    background:#ff4d6d;
+    color:white;
+    margin-top:10px;
+    cursor:pointer;
 }
 
-.resultado {
-    font-size: 22px;
-    margin-top: 15px;
-    font-weight: bold;
+#areaPrint {
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    margin-top:10px;
 }
 
-#historico {
-    max-height: 150px;
-    overflow-y: auto;
-    text-align: left;
-    margin-top: 10px;
-}
+.resultado { font-weight:bold;margin-top:10px; }
+
 </style>
 </head>
 
@@ -79,73 +64,53 @@ button {
 
 <img src="img/Logo.png" class="logo">
 
-<!-- LOGIN -->
 <div id="loginBox" class="box">
-    <h2>Login</h2>
-    <input id="user" placeholder="Email">
-    <input id="pass" type="password" placeholder="Senha">
-    <button onclick="login()">Entrar</button>
+<h2>Login</h2>
+<input id="user" placeholder="Email">
+<input id="pass" type="password" placeholder="Senha">
+<button onclick="login()">Entrar</button>
 </div>
 
-<!-- APP -->
 <div id="app" style="display:none;">
 
-    <div class="box">
-        <h2>Consórcio</h2>
+<div class="box">
 
-        <input id="nome" placeholder="Nome do consórcio">
-        <input id="qtd" type="number" placeholder="Número de participantes">
-        <input id="inicio" type="date">
-        <input id="fim" type="date">
+<input id="nome" placeholder="Nome do consórcio">
+<input id="qtd" type="number" placeholder="Número de participantes">
+<input id="inicio" type="date">
+<input id="fim" type="date">
 
-        <button onclick="gerar()">Gerar participantes</button>
+<button onclick="gerar()">Gerar participantes</button>
+<div id="lista"></div>
 
-        <div id="lista"></div>
+<button onclick="preparar()">INICIAR CICLO</button>
+<button onclick="sortear()">SORTEAR PRÓXIMO</button>
 
-        <button onclick="iniciar()">INICIAR SORTEIO</button>
-        <button onclick="logout()">Sair</button>
+<button onclick="gerarImagem()">📸 Gerar imagem</button>
+<button onclick="enviarWhats()">📲 Enviar WhatsApp</button>
 
-        <div id="resultado"></div>
-    </div>
-
-    <div class="box">
-        <h3>Histórico</h3>
-        <div id="historico"></div>
-    </div>
+<button onclick="logout()">Sair</button>
 
 </div>
 
+<div id="areaPrint">
+<h3 id="tituloPrint"></h3>
+<div id="historico"></div>
 </div>
 
-<!-- FIREBASE -->
+</div>
+</div>
+
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { 
-  getAuth, 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  getDocs,
-  query,
-  where
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-/* CONFIG */
 const firebaseConfig = {
-  apiKey: "AIzaSyBDxaSPwNAG9o5t2EmImCyr6qQb8rySGqY",
+  apiKey: "AIzaSy...",
   authDomain: "consorcio-app-fbef2.firebaseapp.com",
-  projectId: "consorcio-app-fbef2",
-  storageBucket: "consorcio-app-fbef2.firebasestorage.app",
-  messagingSenderId: "1029360209160",
-  appId: "1:1029360209160:web:f3b93739c21659e0cdb0bd"
+  projectId: "consorcio-app-fbef2"
 };
 
 const appFirebase = initializeApp(firebaseConfig);
@@ -153,74 +118,30 @@ const auth = getAuth(appFirebase);
 const db = getFirestore(appFirebase);
 
 /* LOGIN */
-window.login = async function(){
-    let email = document.getElementById("user").value;
-    let senha = document.getElementById("pass").value;
-
-    try {
-        await signInWithEmailAndPassword(auth, email, senha);
-    } catch {
-        await createUserWithEmailAndPassword(auth, email, senha);
+window.login = async ()=>{
+    try{
+        await signInWithEmailAndPassword(auth,user.value,pass.value);
+    }catch{
+        await createUserWithEmailAndPassword(auth,user.value,pass.value);
     }
 }
 
-/* ESTADO */
-onAuthStateChanged(auth, (usuario)=>{
-    if(usuario){
-        document.getElementById("loginBox").style.display="none";
-        document.getElementById("app").style.display="block";
-        carregar();
+onAuthStateChanged(auth,(u)=>{
+    if(u){
+        loginBox.style.display="none";
+        app.style.display="block";
     } else {
-        document.getElementById("loginBox").style.display="block";
-        document.getElementById("app").style.display="none";
+        loginBox.style.display="block";
+        app.style.display="none";
     }
 });
 
-/* LOGOUT */
-window.logout = function(){
-    signOut(auth);
-}
+window.logout = ()=> signOut(auth);
 
-/* SALVAR */
-async function salvar(nome, historico){
-    const user = auth.currentUser;
-
-    await addDoc(collection(db, "sorteios"), {
-        nome,
-        historico,
-        uid: user.uid,
-        data: new Date()
-    });
-}
-
-/* CARREGAR */
-async function carregar(){
-
-    const user = auth.currentUser;
-
-    const q = query(
-        collection(db, "sorteios"),
-        where("uid", "==", user.uid)
-    );
-
-    const querySnapshot = await getDocs(q);
-
-    let h = document.getElementById("historico");
-    h.innerHTML = "";
-
-    querySnapshot.forEach(doc=>{
-        let d = doc.data();
-        h.innerHTML += `<p><b>${d.nome}</b><br>${d.historico}</p><hr>`;
-    });
-}
-
-/* SISTEMA */
-window.gerar = function(){
-    let qtd = document.getElementById("qtd").value;
-    let lista = document.getElementById("lista");
+/* PARTICIPANTES */
+window.gerar = ()=>{
     lista.innerHTML="";
-
-    for(let i=0;i<qtd;i++){
+    for(let i=0;i<qtd.value;i++){
         lista.innerHTML+=`<input class="p" placeholder="Nome ${i+1}" oninput="this.value=this.value.toUpperCase()">`;
     }
 }
@@ -228,58 +149,65 @@ window.gerar = function(){
 function gerarMeses(i,f){
     let meses=[];
     let d=new Date(i);
-
     while(d<=new Date(f)){
-        meses.push(d.toLocaleDateString('pt-BR',{month:'short',year:'numeric'}));
+        meses.push(d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}));
         d.setMonth(d.getMonth()+1);
     }
     return meses;
 }
 
-let pessoas=[], meses=[];
+let pessoas=[], meses=[], usados=[];
 
-window.iniciar = function(){
-
-    pessoas=[];
-    document.querySelectorAll(".p").forEach(e=>pessoas.push(e.value));
-
-    let inicio = document.getElementById("inicio").value;
-    let fim = document.getElementById("fim").value;
-
-    meses=gerarMeses(inicio,fim);
-
-    if(pessoas.length!==meses.length){
-        alert("Quantidade de pessoas e meses diferente!");
-        return;
-    }
-
-    document.getElementById("historico").innerHTML="";
-    sortear();
+/* PREPARAR */
+window.preparar = ()=>{
+    pessoas=[...document.querySelectorAll(".p")].map(e=>e.value);
+    meses=gerarMeses(inicio.value,fim.value);
+    usados=[];
+    historico.innerHTML="";
+    tituloPrint.innerText=nome.value;
 }
 
-function sortear(){
+/* SORTEAR */
+window.sortear = async ()=>{
 
-    if(pessoas.length===0){
-        alert("Fim do sorteio");
+    if(usados.length===pessoas.length){
+        alert("Todos já foram sorteados!");
         return;
     }
 
-    let i=Math.floor(Math.random()*pessoas.length);
-    let m=Math.floor(Math.random()*meses.length);
+    let disponiveis=pessoas.filter(p=>!usados.includes(p));
+    let sorteado=disponiveis[Math.floor(Math.random()*disponiveis.length)];
 
-    let p=pessoas.splice(i,1)[0];
-    let mes=meses.splice(m,1)[0];
+    let mes=meses[usados.length];
 
-    document.getElementById("resultado").innerHTML =
-        `<div class="resultado">${p} → ${mes}</div>`;
+    usados.push(sorteado);
 
-    let hist = document.getElementById("historico");
-    hist.innerHTML+=`<p>${p} → ${mes}</p>`;
-
-    salvar(document.getElementById("nome").value, hist.innerHTML);
+    historico.innerHTML+=`<p>${mes} → ${sorteado}</p>`;
 
     confetti({particleCount:120,spread:70});
-    new Audio("https://www.soundjay.com/button/sounds/button-3.mp3").play();
+
+    await addDoc(collection(db,"sorteios"),{
+        nome:nome.value,
+        pessoa:sorteado,
+        mes:mes,
+        uid:auth.currentUser.uid
+    });
+}
+
+/* GERAR IMAGEM */
+window.gerarImagem = async ()=>{
+    let canvas = await html2canvas(document.getElementById("areaPrint"));
+    let link = document.createElement("a");
+    link.download = "sorteio.png";
+    link.href = canvas.toDataURL();
+    link.click();
+}
+
+/* WHATSAPP */
+window.enviarWhats = ()=>{
+    let texto = historico.innerText;
+    let url = "https://wa.me/?text=" + encodeURIComponent(texto);
+    window.open(url);
 }
 
 </script>
