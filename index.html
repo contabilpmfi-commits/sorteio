@@ -9,6 +9,22 @@
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
+<style>
+.card {
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    margin:10px 0;
+    text-align:left;
+}
+
+.card button {
+    width:auto;
+    margin:5px 5px 0 0;
+    padding:6px 10px;
+}
+</style>
+
 </head>
 <body>
 
@@ -24,7 +40,7 @@
 
 <!-- DASHBOARD -->
 <div id="dashboard" class="tela">
-    <h2>Meus Consórcios</h2>
+    <h2>Consórcios</h2>
 
     <button onclick="abrirCadastro()">+ Novo</button>
 
@@ -35,6 +51,7 @@
 
 <!-- CADASTRO -->
 <div id="cadastro" class="tela">
+
     <h3>Novo Consórcio</h3>
 
     <input id="nome" placeholder="Nome">
@@ -42,23 +59,29 @@
     <input id="inicio" type="date">
     <input id="fim" type="date">
 
+    <label>
+        <input type="checkbox" id="manual"> Já foi sorteado
+    </label>
+
     <button onclick="gerarParticipantes()">Gerar nomes</button>
 
     <div id="participantes"></div>
 
     <button onclick="salvarConsorcio()">Salvar</button>
     <button onclick="voltar()">Voltar</button>
+
 </div>
 
 <!-- SORTEIO -->
-<div id="sorteio" class="tela sorteio">
+<div id="sorteio" class="tela">
 
     <h2 id="titulo"></h2>
 
-    <div class="nome" id="nomeSorteado"></div>
-    <div class="mes" id="mesSorteado"></div>
+    <div id="nomeSorteado" style="font-size:30px;"></div>
+    <div id="mesSorteado"></div>
 
     <button onclick="sortear()">Sortear</button>
+    <button onclick="exportarTexto()">Exportar</button>
     <button onclick="voltar()">Voltar</button>
 
 </div>
