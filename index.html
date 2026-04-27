@@ -3,13 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Consórcio App</title>
 
 <link rel="stylesheet" href="css/style.css">
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff4d6d">
 
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
+
 <body>
+
+<!-- SPLASH -->
+<div id="splash">
+    <img src="img/Logo.png">
+    <h2>Consórcio App</h2>
+</div>
 
 <!-- LOGIN -->
 <div id="login" class="tela ativa">
@@ -40,18 +50,12 @@
 <!-- CADASTRO -->
 <div id="cadastro" class="tela">
 
-    <div class="topo">
-        <h3>Novo Consórcio</h3>
-    </div>
+    <h3>Novo Consórcio</h3>
 
     <input id="nome" placeholder="Nome do consórcio">
     <input id="qtd" type="number" placeholder="Número de participantes">
     <input id="inicio" type="date">
     <input id="fim" type="date">
-
-    <label class="check">
-        <input type="checkbox" id="manual"> Já foi sorteado
-    </label>
 
     <button onclick="gerarParticipantes()">Gerar participantes</button>
 
