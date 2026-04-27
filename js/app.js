@@ -14,26 +14,17 @@ function mostrar(id){
     document.getElementById(id).classList.remove("hidden");
 }
 
-/* LOGIN CORRETO (SEM CRIAR USUÁRIO) */
+/* LOGIN */
 window.login = async ()=>{
     try{
         await signInWithEmailAndPassword(auth, email.value, senha.value);
     }catch(err){
-        console.log(err);
-
-        if(err.code === "auth/invalid-credential"){
-            alert("Email ou senha incorretos");
-        } else if(err.code === "auth/user-not-found"){
-            alert("Usuário não existe");
-        } else {
-            alert("Erro: " + err.code);
-        }
+        alert("Erro: " + err.code);
     }
 };
 
 window.logout = ()=> signOut(auth);
 
-/* AUTO LOGIN */
 onAuthStateChanged(auth,(u)=>{
     if(u){
         mostrar("dashboard");
@@ -41,6 +32,29 @@ onAuthStateChanged(auth,(u)=>{
         mostrar("login");
     }
 });
-/* NAVEGAÇÃO */
-window.abrirCadastro = () => mostrar("cadastro");
-window.voltar = () => mostrar("dashboard");
+
+/* ✅ GERAR PARTICIPANTES (CORRIGIDO) */
+window.gerarParticipantes = ()=>{
+    participantes.innerHTML="";
+    for(let i=0;i<qtd.value;i++){
+        participantes.innerHTML+=`<input class="p" placeholder="Nome ${i+1}">`;
+    }
+};
+
+/* SALVAR */
+window.salvarConsorcio = ()=>{
+    alert("Salvo (mock)");
+};
+
+/* SORTEIO */
+window.sortear = ()=>{
+    nomeSorteado.innerText="SORTEADO!";
+    mesSorteado.innerText="Contemplado 🎉";
+};
+
+/* NAV */
+window.abrirCadastro = ()=>mostrar("cadastro");
+window.voltar = ()=>mostrar("dashboard");
+
+/* SERVICE WORKER (desliga por enquanto) */
+// navigator.serviceWorker.register("./sw.js");
