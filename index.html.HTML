@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consórcio</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+}
+
+/* LOGO */
+.logo img {
+    width: 200px;
+    margin-bottom: 10px;
+}
+
+/* TITULO */
+h1 {
+    color: white;
+    margin: 5px;
+}
+
+/* INFO */
+.info {
+    background: rgba(255,255,255,0.9);
+    padding: 15px;
+    border-radius: 15px;
+    margin: 10px;
+}
+
+/* BOTÕES */
+button {
+    margin: 10px;
+    padding: 12px 30px;
+    font-size: 16px;
+    border: none;
+    border-radius: 25px;
+    background: linear-gradient(45deg, #ff4d6d, #ff758f);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+/* RESULTADO */
+.resultado {
+    margin-top: 20px;
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    animation: aparecer 0.4s;
+}
+
+.nome {
+    font-size: 26px;
+    font-weight: bold;
+    color: #ff4d6d;
+}
+
+.mes {
+    font-size: 20px;
+}
+
+/* HISTÓRICO */
+#historico {
+    margin-top: 20px;
+    max-height: 150px;
+    overflow-y: auto;
+    background: rgba(255,255,255,0.8);
+    padding: 10px;
+    border-radius: 10px;
+    width: 300px;
+}
+
+/* ANIMAÇÃO */
+@keyframes aparecer {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* BALÕES */
+.balao {
+    position: absolute;
+    bottom: -100px;
+    width: 50px;
+    height: 70px;
+    border-radius: 50%;
+    animation: subir linear infinite;
+}
+
+@keyframes subir {
+    from { transform: translateY(0); }
+    to { transform: translateY(-110vh); }
+}
+</style>
+
+</head>
+<body>
+
+<div class="logo">
+    <!-- 🔥 COLOQUE SEU ID DO DRIVE AQUI -->
+    <img src="https://drive.google.com/file/d/18o4eUEBqXNr5TkpiTSDXnBHgSQq2J6Ha/view?usp=sharing">
+</div>
+
+<h1 id="titulo"></h1>
+
+<div class="info">
+    <p id="grupo"></p>
+    <p id="mensal"></p>
+    <p id="resgate"></p>
+</div>
+
+<button onclick="sortear()">SORTEAR</button>
+<button onclick="resetar()">RESETAR</button>
+
+<div id="resultado"></div>
+
+<h3>Histórico</h3>
+<div id="historico"></div>
+
+<script>
+
+/* CONFIGURAÇÃO */
+let config = {
+    empresa: "Consórcio O Boticário",
+    grupo: "Grupo 4",
+    valorMensal: "R$ 35,00",
+    valorResgate: "R$ 350,00",
+
+    pessoas: [
+        "GABRIELA","IRENI","JACKELINE","JUSCELIA",
+        "LARISSA","LUANA","MARCOS","MARIA ANITA","NEUZA","SILVANA"
+    ],
+
+    meses: gerarMeses(4, 2026, 10)
+};
+
+/* GERAR MESES */
+function gerarMeses(inicioMes, inicioAno, quantidade){
+    let meses = [];
+    let data = new Date(inicioAno, inicioMes);
+
+    for(let i = 0; i < quantidade; i++){
+        meses.push(
+            data.toLocaleDateString('pt-BR', {
+                month: 'short',
+                year: 'numeric'
+            })
+        );
+        data.setMonth(data.getMonth() + 1);
+    }
+    return meses;
+}
+
+let pessoasDisponiveis = [...config.pessoas];
+let mesesDisponiveis = [...config.meses];
+
+/* INICIAR */
+document.getElementById("titulo").innerText = config.empresa;
+document.getElementById("grupo").innerText = config.grupo;
+document.getElementById("mensal").innerText = "Mensalidade: " + config.valorMensal;
+document.getElementById("resgate").innerText = "Resgate: " + config.valorResgate;
+
+/* SORTEIO */
+function sortear(){
+
+    if(config.pessoas.length !== config.meses.length){
+        alert("Quantidade de pessoas e meses diferente!");
+        return;
+    }
+
+    if(pessoasDisponiveis.length === 0){
+        alert("Todos já foram sorteados!");
+        return;
+    }
+
+    let resultadoDiv = document.getElementById("resultado");
+    resultadoDiv.innerHTML = "<div class='resultado'>Sorteando...</div>";
+
+    setTimeout(() => {
+
+        let pessoaIndex = Math.floor(Math.random() * pessoasDisponiveis.length);
+        let mesIndex = Math.floor(Math.random() * mesesDisponiveis.length);
+
+        let pessoa = pessoasDisponiveis.splice(pessoaIndex, 1)[0];
+        let mes = mesesDisponiveis.splice(mesIndex, 1)[0];
+
+        resultadoDiv.innerHTML = `
+            <div class="resultado">
+                <div class="nome">${pessoa}</div>
+                <div class="mes">${mes}</div>
+            </div>
+        `;
+
+        adicionarHistorico(pessoa, mes);
+
+    }, 1200);
+}
+
+/* HISTÓRICO */
+function adicionarHistorico(pessoa, mes){
+    let hist = document.getElementById("historico");
+    hist.innerHTML += `<p>${pessoa} → ${mes}</p>`;
+}
+
+/* RESET */
+function resetar(){
+    pessoasDisponiveis = [...config.pessoas];
+    mesesDisponiveis = [...config.meses];
+    document.getElementById("resultado").innerHTML = "";
+    document.getElementById("historico").innerHTML = "";
+}
+
+/* BALÕES */
+for(let i=0; i<12; i++){
+    let b = document.createElement("div");
+    b.classList.add("balao");
+
+    b.style.left = Math.random()*100+"vw";
+    b.style.animationDuration = (5 + Math.random()*5)+"s";
+    b.style.background = `hsl(${Math.random()*360},70%,80%)`;
+
+    document.body.appendChild(b);
+}
+
+</script>
+
+</body>
+</html>
