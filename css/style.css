@@ -1,38 +1,86 @@
+body {
+    margin:0;
+    font-family:Arial;
+    background:#ff9a9e;
+    text-align:center;
+}
+
+/* TELAS */
+.tela { display:none; padding:20px; }
+.ativa { display:block; }
+
 /* LOGO */
 .logo {
     width:120px;
-    display:block;
     margin:10px auto;
 }
 
-/* DASHBOARD */
+/* TOPO */
 .topo {
-    text-align:center;
     margin-bottom:10px;
 }
 
-/* CARD MELHORADO */
+/* CARD */
 .card {
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    max-width:320px;
+    margin:auto;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+.login-card {
+    margin-top:80px;
+}
+
+/* INPUT */
+input {
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+/* BOTÕES */
+button {
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:25px;
+    margin-top:10px;
+    cursor:pointer;
+}
+
+.btn-principal {
+    background:#ff4d6d;
+    color:white;
+}
+
+.btn-secundario {
+    background:#ccc;
+}
+
+/* LISTA */
+.card-consorcio {
     background:white;
     padding:15px;
     border-radius:12px;
     margin:10px 0;
+    text-align:left;
     box-shadow:0 3px 10px rgba(0,0,0,0.1);
 }
 
-/* BOTÕES INLINE */
-.card-actions {
-    margin-top:10px;
-}
-
+/* AÇÕES */
 .card-actions button {
     width:auto;
-    padding:6px 12px;
+    padding:6px 10px;
     margin-right:5px;
     font-size:12px;
 }
 
-/* TAGS PARTICIPANTES */
+/* TAGS */
 .tags {
     display:flex;
     flex-wrap:wrap;
@@ -46,4 +94,23 @@
     padding:5px 10px;
     border-radius:20px;
     font-size:12px;
+}
+
+/* SORTEIO */
+.sorteio {
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    height:100vh;
+}
+
+.nome {
+    font-size:40px;
+    font-weight:bold;
+    color:white;
+}
+
+.mes {
+    font-size:20px;
+    color:white;
 }
