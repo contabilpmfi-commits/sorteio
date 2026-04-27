@@ -6,31 +6,15 @@
 <title>Consórcio App</title>
 
 <link rel="stylesheet" href="css/style.css">
-
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-<style>
-.card {
-    background:white;
-    padding:15px;
-    border-radius:10px;
-    margin:10px 0;
-    text-align:left;
-}
-
-.card button {
-    width:auto;
-    margin:5px 5px 0 0;
-    padding:6px 10px;
-}
-</style>
 
 </head>
 <body>
 
 <!-- LOGIN -->
 <div id="login" class="tela ativa">
-    <div class="card">
+    <div class="card login-card">
+        <img src="img/Logo.png" class="logo">
         <h2>Login</h2>
         <input id="email" placeholder="Email">
         <input id="senha" type="password" placeholder="Senha">
@@ -40,44 +24,55 @@
 
 <!-- DASHBOARD -->
 <div id="dashboard" class="tela">
+
     <div class="topo">
-    <img src="img/Logo.png" class="logo">
-    <h2>Consórcios</h2>
+        <img src="img/Logo.png" class="logo">
+        <h2>Meus Consórcios</h2>
+    </div>
+
+    <button class="btn-principal" onclick="abrirCadastro()">+ Novo Consórcio</button>
+
+    <div id="listaConsorcios"></div>
+
+    <button class="btn-secundario" onclick="logout()">Sair</button>
 </div>
+
 <!-- CADASTRO -->
 <div id="cadastro" class="tela">
 
-    <h3>Novo Consórcio</h3>
+    <div class="topo">
+        <h3>Novo Consórcio</h3>
+    </div>
 
-    <input id="nome" placeholder="Nome">
-    <input id="qtd" type="number" placeholder="Participantes">
+    <input id="nome" placeholder="Nome do consórcio">
+    <input id="qtd" type="number" placeholder="Número de participantes">
     <input id="inicio" type="date">
     <input id="fim" type="date">
 
-    <label>
+    <label class="check">
         <input type="checkbox" id="manual"> Já foi sorteado
     </label>
 
-    <button onclick="gerarParticipantes()">Gerar nomes</button>
+    <button onclick="gerarParticipantes()">Gerar participantes</button>
 
     <div id="participantes"></div>
 
-    <button onclick="salvarConsorcio()">Salvar</button>
-    <button onclick="voltar()">Voltar</button>
+    <button class="btn-principal" onclick="salvarConsorcio()">Salvar</button>
+    <button class="btn-secundario" onclick="voltar()">Voltar</button>
 
 </div>
 
 <!-- SORTEIO -->
-<div id="sorteio" class="tela">
+<div id="sorteio" class="tela sorteio">
 
     <h2 id="titulo"></h2>
 
-    <div id="nomeSorteado" style="font-size:30px;"></div>
-    <div id="mesSorteado"></div>
+    <div class="nome" id="nomeSorteado"></div>
+    <div class="mes" id="mesSorteado"></div>
 
-    <button onclick="sortear()">Sortear</button>
+    <button class="btn-principal" onclick="sortear()">Sortear</button>
     <button onclick="exportarTexto()">Exportar</button>
-    <button onclick="voltar()">Voltar</button>
+    <button class="btn-secundario" onclick="voltar()">Voltar</button>
 
 </div>
 
