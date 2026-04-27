@@ -3,58 +3,242 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Consórcio</title>
-
-<link rel="stylesheet" href="css/style.css">
+<title>Consórcio App</title>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+<style>
+
+body {
+    margin:0;
+    font-family:Arial;
+    background:#ff9a9e;
+}
+
+/* TELAS */
+.tela {
+    display:none;
+    padding:20px;
+    text-align:center;
+}
+
+.ativa {
+    display:block;
+}
+
+/* LOGIN */
+.login-box {
+    max-width:300px;
+    margin:auto;
+    margin-top:100px;
+    background:white;
+    padding:20px;
+    border-radius:15px;
+}
+
+input {
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border-radius:8px;
+    border:1px solid #ccc;
+    box-sizing:border-box;
+}
+
+button {
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:20px;
+    background:#ff4d6d;
+    color:white;
+    margin-top:10px;
+    font-size:16px;
+}
+
+/* MENU */
+.menu button {
+    margin-top:10px;
+}
+
+/* SORTEIO */
+.sorteio {
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+
+.nome {
+    font-size:40px;
+    font-weight:bold;
+    color:white;
+}
+
+.mes {
+    font-size:22px;
+    color:white;
+}
+
+/* BALÕES */
+.balao {
+    position:absolute;
+    bottom:-100px;
+    width:50px;
+    height:70px;
+    border-radius:50%;
+    animation:subir 8s infinite;
+}
+
+@keyframes subir {
+    to { transform: translateY(-120vh); }
+}
+
+</style>
 </head>
 
 <body>
 
-<div class="container">
-
-<img src="img/Logo.png" class="logo">
-
-<div id="loginBox" class="box">
-<h3>Login</h3>
-<input id="user" placeholder="Email">
-<input id="pass" type="password" placeholder="Senha">
-<button onclick="login()">Entrar</button>
+<!-- LOGIN -->
+<div id="login" class="tela ativa">
+    <div class="login-box">
+        <h2>Login</h2>
+        <input id="user" placeholder="Email">
+        <input id="pass" type="password" placeholder="Senha">
+        <button onclick="login()">Entrar</button>
+    </div>
 </div>
 
-<div id="app" style="display:none;">
+<!-- MENU -->
+<div id="menu" class="tela">
+    <h2>Consórcio</h2>
 
-<div class="box">
-<input id="nome" placeholder="Nome do consórcio">
-<input id="qtd" type="number" placeholder="Número de participantes">
-<input id="inicio" type="date">
-<input id="fim" type="date">
-
-<button onclick="gerar()">Gerar participantes</button>
-
-<div id="lista"></div>
-
-<button onclick="preparar()">Iniciar ciclo</button>
-<button onclick="sortear()">Sortear próximo</button>
-
-<button onclick="gerarImagem()">📸 Imagem</button>
-<button onclick="enviarWhats()">📲 WhatsApp</button>
-
-<button onclick="logout()">Sair</button>
+    <div class="menu">
+        <button onclick="abrirCadastro()">Novo Sorteio</button>
+        <button onclick="abrirSorteio()">Sortear</button>
+        <button onclick="logout()">Sair</button>
+    </div>
 </div>
 
-<div id="areaPrint" class="box">
-<h3 id="tituloPrint"></h3>
-<div id="historico"></div>
-</div>
+<!-- CADASTRO -->
+<div id="cadastro" class="tela">
+
+    <h3>Novo Consórcio</h3>
+
+    <input id="nome" placeholder="Nome">
+    <input id="qtd" type="number" placeholder="Participantes">
+    <input id="inicio" type="date">
+    <input id="fim" type="date">
+
+    <button onclick="gerar()">Gerar participantes</button>
+
+    <div id="lista"></div>
+
+    <button onclick="salvarConsorcio()">Salvar</button>
+    <button onclick="voltarMenu()">Voltar</button>
 
 </div>
 
+<!-- SORTEIO -->
+<div id="sorteio" class="tela sorteio">
+
+    <div class="nome" id="nomeSorteado"></div>
+    <div class="mes" id="mesSorteado"></div>
+
+    <button onclick="sortear()">SORTEAR</button>
+    <button onclick="voltarMenu()">Voltar</button>
+
 </div>
 
-<script type="module" src="js/app.js"></script>
+<script>
+
+/* TELAS */
+function mostrar(id){
+    document.querySelectorAll(".tela").forEach(t=>t.classList.remove("ativa"));
+    document.getElementById(id).classList.add("ativa");
+}
+
+/* LOGIN SIMPLES */
+function login(){
+    mostrar("menu");
+}
+
+function logout(){
+    mostrar("login");
+}
+
+/* NAV */
+function abrirCadastro(){ mostrar("cadastro"); }
+function abrirSorteio(){ mostrar("sorteio"); }
+function voltarMenu(){ mostrar("menu"); }
+
+/* PARTICIPANTES */
+function gerar(){
+    lista.innerHTML="";
+    for(let i=0;i<qtd.value;i++){
+        lista.innerHTML+=`<input class="p" placeholder="Nome ${i+1}" oninput="this.value=this.value.toUpperCase()">`;
+    }
+}
+
+/* MESES */
+function gerarMeses(inicio, fim){
+    let meses=[];
+    let [a,m]=inicio.split("-");
+    let [af,mf]=fim.split("-");
+    let d=new Date(a,m-1,1);
+    let f=new Date(af,mf-1,1);
+
+    while(d<=f){
+        meses.push(d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}));
+        d.setMonth(d.getMonth()+1);
+    }
+
+    return meses;
+}
+
+let pessoas=[], meses=[], usados=[];
+
+/* SALVAR */
+function salvarConsorcio(){
+    pessoas=[...document.querySelectorAll(".p")].map(e=>e.value);
+    meses=gerarMeses(inicio.value,fim.value);
+    usados=[];
+    alert("Salvo!");
+    voltarMenu();
+}
+
+/* SORTEAR */
+function sortear(){
+
+    if(usados.length === pessoas.length){
+        alert("Finalizado");
+        return;
+    }
+
+    let disp=pessoas.filter(p=>!usados.includes(p));
+    let sorteado=disp[Math.floor(Math.random()*disp.length)];
+
+    let mes=meses[usados.length];
+
+    usados.push(sorteado);
+
+    nomeSorteado.innerText = sorteado;
+    mesSorteado.innerText = "Contemplado(a) no mês de " + mes;
+
+    /* efeitos */
+    confetti();
+
+    for(let i=0;i<10;i++){
+        let b=document.createElement("div");
+        b.className="balao";
+        b.style.left=Math.random()*100+"vw";
+        b.style.background=`hsl(${Math.random()*360},70%,70%)`;
+        document.body.appendChild(b);
+    }
+}
+
+</script>
 
 </body>
 </html>
