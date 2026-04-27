@@ -11,7 +11,9 @@ import {
   addDoc,
   getDocs,
   query,
-  where
+  where,
+  deleteDoc,
+  doc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* NAV */
@@ -40,7 +42,7 @@ onAuthStateChanged(auth,(u)=>{
     }
 });
 
-/* PARTICIPANTES */
+/* GERAR PARTICIPANTES */
 window.gerarParticipantes = ()=>{
     participantes.innerHTML="";
     for(let i=0;i<qtd.value;i++){
@@ -48,23 +50,9 @@ window.gerarParticipantes = ()=>{
     }
 };
 
-/* MESES */
-function gerarMeses(inicio,fim){
-    let meses=[];
-    let [a,m]=inicio.split("-");
-    let [af,mf]=fim.split("-");
-    let d=new Date(a,m-1,1);
-    let f=new Date(af,mf-1,1);
-
-    while(d<=f){
-        meses.push(d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}));
-        d.setMonth(d.getMonth()+1);
-    }
-    return meses;
-}
-
 /* SALVAR */
 window.salvarConsorcio = async ()=>{
+
     let nomes=[...document.querySelectorAll(".p")].map(e=>e.value);
 
     await addDoc(collection(db,"consorcios"),{
@@ -72,10 +60,12 @@ window.salvarConsorcio = async ()=>{
         pessoas:nomes,
         inicio:inicio.value,
         fim:fim.value,
-        uid:auth.currentUser.uid
+        uid:auth.currentUser.uid,
+        manual: manual.checked
     });
 
-    alert("Salvo!");
+    alert("Consórcio cadastrado com sucesso!");
+
     tela("dashboard");
     carregarConsorcios();
 };
@@ -90,16 +80,29 @@ async function carregarConsorcios(){
 
     listaConsorcios.innerHTML="";
 
-    snap.forEach(doc=>{
-        let d=doc.data();
+    snap.forEach(docSnap=>{
+        let d=docSnap.data();
+
         listaConsorcios.innerHTML+=`
             <div class="card">
-                <b>${d.nome}</b>
-                <button onclick="abrirSorteio('${doc.id}')">Sortear</button>
+                <b>${d.nome}</b><br>
+                ${d.manual ? "📌 Importado" : "🎲 Sorteio"}
+                <br>
+
+                <button onclick="abrirSorteio('${docSnap.id}')">Abrir</button>
+                <button onclick="excluir('${docSnap.id}')">Excluir</button>
             </div>
         `;
     });
 }
+
+/* EXCLUIR */
+window.excluir = async (id)=>{
+    if(confirm("Excluir consórcio?")){
+        await deleteDoc(doc(db,"consorcios",id));
+        carregarConsorcios();
+    }
+};
 
 /* SORTEIO */
 let atual=null, usados=[], meses=[];
@@ -108,9 +111,9 @@ window.abrirSorteio = async (id)=>{
 
     let snap=await getDocs(collection(db,"consorcios"));
 
-    snap.forEach(doc=>{
-        if(doc.id===id){
-            atual=doc.data();
+    snap.forEach(docSnap=>{
+        if(docSnap.id===id){
+            atual=docSnap.data();
         }
     });
 
@@ -122,7 +125,22 @@ window.abrirSorteio = async (id)=>{
     tela("sorteio");
 };
 
+function gerarMeses(inicio,fim){
+    let meses=[];
+    let [a,m]=inicio.split("-");
+    let [af,mf]=fim.split("-");
+    let d=new Date(a,m-1,1);
+    let f=new Date(af,mf-1,1);
+
+    while(d<=f){
+        meses.push(d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}));
+        d.setMonth(d.getMonth()+1);
+    }
+    return meses;
+}
+
 window.sortear = ()=>{
+
     let disp=atual.pessoas.filter(p=>!usados.includes(p));
 
     let sorteado=disp[Math.floor(Math.random()*disp.length)];
@@ -135,6 +153,19 @@ window.sortear = ()=>{
     mesSorteado.innerText="Contemplado(a) em "+mes;
 
     confetti();
+};
+
+/* EXPORTAR */
+window.exportarTexto = ()=>{
+    let texto = atual.nome + "\n\n";
+
+    usados.forEach((p,i)=>{
+        texto += `${meses[i]} → ${p}\n`;
+    });
+
+    navigator.clipboard.writeText(texto);
+
+    alert("Copiado!");
 };
 
 /* NAV */
