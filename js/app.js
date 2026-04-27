@@ -41,3 +41,6 @@ onAuthStateChanged(auth,(u)=>{
         mostrar("login");
     }
 });
+/* NAVEGAÇÃO */
+window.abrirCadastro = () => mostrar("cadastro");
+window.voltar = () => mostrar("dashboard");
