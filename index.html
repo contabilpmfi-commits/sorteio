@@ -19,7 +19,6 @@ body {
     min-height: 100vh;
 }
 
-/* CONTAINER */
 .container {
     width: 100%;
     max-width: 400px;
@@ -27,13 +26,11 @@ body {
     text-align: center;
 }
 
-/* LOGO */
 .logo {
     width: 150px;
     margin-bottom: 10px;
 }
 
-/* BOX */
 .box {
     background: white;
     padding: 25px;
@@ -41,7 +38,6 @@ body {
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
-/* INPUT */
 input {
     width: 100%;
     padding: 12px;
@@ -51,7 +47,6 @@ input {
     box-sizing: border-box;
 }
 
-/* BOTÃO */
 button {
     width: 100%;
     padding: 12px;
@@ -62,21 +57,14 @@ button {
     font-size: 16px;
     cursor: pointer;
     margin-top: 10px;
-    transition: 0.3s;
 }
 
-button:hover {
-    transform: scale(1.05);
-}
-
-/* RESULTADO */
 .resultado {
     font-size: 22px;
     margin-top: 15px;
     font-weight: bold;
 }
 
-/* HISTÓRICO */
 #historico {
     max-height: 150px;
     overflow-y: auto;
@@ -94,9 +82,9 @@ button:hover {
 <img src="img/Logo.png" class="logo">
 
 <!-- LOGIN -->
-<div id="login" class="box">
+<div id="loginBox" class="box">
     <h2>Login</h2>
-    <input id="user" placeholder="Usuário">
+    <input id="user" placeholder="Email">
     <input id="pass" type="password" placeholder="Senha">
     <button onclick="login()">Entrar</button>
 </div>
@@ -118,6 +106,8 @@ button:hover {
 
         <button onclick="iniciar()">INICIAR SORTEIO</button>
 
+        <button onclick="logout()">Sair</button>
+
         <div id="resultado"></div>
     </div>
 
@@ -130,34 +120,100 @@ button:hover {
 
 </div>
 
-<script>
+<!-- FIREBASE -->
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  getDocs 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* SUA CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyBDxaSPwNAG9o5t2EmImCyr6qQb8rySGqY",
+  authDomain: "consorcio-app-fbef2.firebaseapp.com",
+  projectId: "consorcio-app-fbef2",
+  storageBucket: "consorcio-app-fbef2.firebasestorage.app",
+  messagingSenderId: "1029360209160",
+  appId: "1:1029360209160:web:f3b93739c21659e0cdb0bd"
+};
+
+const appFirebase = initializeApp(firebaseConfig);
+const auth = getAuth(appFirebase);
+const db = getFirestore(appFirebase);
 
 /* LOGIN */
-function login(){
-    if(user.value==="admin" && pass.value==="123"){
-        localStorage.setItem("logado",true);
-        mostrar();
-    } else {
-        alert("Login inválido");
+window.login = async function(){
+    let email = document.getElementById("user").value;
+    let senha = document.getElementById("pass").value;
+
+    try {
+        await signInWithEmailAndPassword(auth, email, senha);
+    } catch {
+        await createUserWithEmailAndPassword(auth, email, senha);
     }
 }
 
-if(localStorage.getItem("logado")) mostrar();
+/* ESTADO LOGIN */
+onAuthStateChanged(auth, (usuario)=>{
+    if(usuario){
+        document.getElementById("loginBox").style.display="none";
+        document.getElementById("app").style.display="block";
+        carregar();
+    } else {
+        document.getElementById("loginBox").style.display="block";
+        document.getElementById("app").style.display="none";
+    }
+});
 
-function mostrar(){
-    login.style.display="none";
-    app.style.display="block";
+/* LOGOUT */
+window.logout = function(){
+    signOut(auth);
 }
 
-/* GERAR PARTICIPANTES */
-function gerar(){
+/* SALVAR */
+async function salvar(nome, historico){
+    await addDoc(collection(db, "sorteios"), {
+        nome,
+        historico,
+        data: new Date()
+    });
+}
+
+/* CARREGAR */
+async function carregar(){
+    let query = await getDocs(collection(db, "sorteios"));
+    let h = document.getElementById("historico");
+    h.innerHTML = "";
+
+    query.forEach(doc=>{
+        let d = doc.data();
+        h.innerHTML += `<p><b>${d.nome}</b><br>${d.historico}</p><hr>`;
+    });
+}
+
+/* LÓGICA DO SISTEMA */
+window.gerar = function(){
+    let qtd = document.getElementById("qtd").value;
+    let lista = document.getElementById("lista");
     lista.innerHTML="";
-    for(let i=0;i<qtd.value;i++){
+
+    for(let i=0;i<qtd;i++){
         lista.innerHTML+=`<input class="p" placeholder="Nome ${i+1}" oninput="this.value=this.value.toUpperCase()">`;
     }
 }
 
-/* GERAR MESES */
 function gerarMeses(i,f){
     let meses=[];
     let d=new Date(i);
@@ -171,26 +227,26 @@ function gerarMeses(i,f){
 
 let pessoas=[], meses=[];
 
-/* INICIAR */
-function iniciar(){
+window.iniciar = function(){
 
     pessoas=[];
     document.querySelectorAll(".p").forEach(e=>pessoas.push(e.value));
 
-    meses=gerarMeses(inicio.value,fim.value);
+    let inicio = document.getElementById("inicio").value;
+    let fim = document.getElementById("fim").value;
+
+    meses=gerarMeses(inicio,fim);
 
     if(pessoas.length!==meses.length){
         alert("Quantidade de pessoas e meses diferente!");
         return;
     }
 
-    historico.innerHTML="";
-    localStorage.setItem("historico","");
+    document.getElementById("historico").innerHTML="";
 
     sortear();
 }
 
-/* SORTEIO */
 function sortear(){
 
     if(pessoas.length===0){
@@ -204,22 +260,17 @@ function sortear(){
     let p=pessoas.splice(i,1)[0];
     let mes=meses.splice(m,1)[0];
 
-    resultado.innerHTML=`<div class="resultado">${p} → ${mes}</div>`;
+    document.getElementById("resultado").innerHTML =
+        `<div class="resultado">${p} → ${mes}</div>`;
 
-    historico.innerHTML+=`<p>${p} → ${mes}</p>`;
+    let hist = document.getElementById("historico");
+    hist.innerHTML+=`<p>${p} → ${mes}</p>`;
 
-    localStorage.setItem("historico",historico.innerHTML);
+    salvar(document.getElementById("nome").value, hist.innerHTML);
 
-    confetti({
-        particleCount: 120,
-        spread: 70
-    });
-
+    confetti({particleCount:120,spread:70});
     new Audio("https://www.soundjay.com/button/sounds/button-3.mp3").play();
 }
-
-/* RESTAURAR HISTÓRICO */
-historico.innerHTML = localStorage.getItem("historico") || "";
 
 </script>
 
