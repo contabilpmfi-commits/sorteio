@@ -173,3 +173,8 @@ window.exportarTexto = ()=>{
 /* NAV */
 window.abrirCadastro=()=>tela("cadastro");
 window.voltar=()=>tela("dashboard");
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js")
+        .then(()=> console.log("App pronto para instalar"))
+        .catch(err=> console.log(err));
+}
