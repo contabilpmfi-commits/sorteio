@@ -5,125 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Consórcio App</title>
 
+<link rel="stylesheet" href="css/style.css">
+
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-<style>
-
-body {
-    margin:0;
-    font-family:Arial;
-    background:#ff9a9e;
-}
-
-/* TELAS */
-.tela {
-    display:none;
-    padding:20px;
-    text-align:center;
-}
-
-.ativa {
-    display:block;
-}
-
-/* LOGIN */
-.login-box {
-    max-width:300px;
-    margin:auto;
-    margin-top:100px;
-    background:white;
-    padding:20px;
-    border-radius:15px;
-}
-
-input {
-    width:100%;
-    padding:12px;
-    margin:8px 0;
-    border-radius:8px;
-    border:1px solid #ccc;
-    box-sizing:border-box;
-}
-
-button {
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:20px;
-    background:#ff4d6d;
-    color:white;
-    margin-top:10px;
-    font-size:16px;
-}
-
-/* MENU */
-.menu button {
-    margin-top:10px;
-}
-
-/* SORTEIO */
-.sorteio {
-    height:100vh;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-}
-
-.nome {
-    font-size:40px;
-    font-weight:bold;
-    color:white;
-}
-
-.mes {
-    font-size:22px;
-    color:white;
-}
-
-/* BALÕES */
-.balao {
-    position:absolute;
-    bottom:-100px;
-    width:50px;
-    height:70px;
-    border-radius:50%;
-    animation:subir 8s infinite;
-}
-
-@keyframes subir {
-    to { transform: translateY(-120vh); }
-}
-
-</style>
 </head>
-
 <body>
 
 <!-- LOGIN -->
 <div id="login" class="tela ativa">
-    <div class="login-box">
+    <div class="card">
         <h2>Login</h2>
-        <input id="user" placeholder="Email">
-        <input id="pass" type="password" placeholder="Senha">
+        <input id="email" placeholder="Email">
+        <input id="senha" type="password" placeholder="Senha">
         <button onclick="login()">Entrar</button>
     </div>
 </div>
 
-<!-- MENU -->
-<div id="menu" class="tela">
-    <h2>Consórcio</h2>
+<!-- DASHBOARD -->
+<div id="dashboard" class="tela">
+    <h2>Meus Consórcios</h2>
 
-    <div class="menu">
-        <button onclick="abrirCadastro()">Novo Sorteio</button>
-        <button onclick="abrirSorteio()">Sortear</button>
-        <button onclick="logout()">Sair</button>
-    </div>
+    <button onclick="abrirCadastro()">+ Novo</button>
+
+    <div id="listaConsorcios"></div>
+
+    <button onclick="logout()">Sair</button>
 </div>
 
 <!-- CADASTRO -->
 <div id="cadastro" class="tela">
-
     <h3>Novo Consórcio</h3>
 
     <input id="nome" placeholder="Nome">
@@ -131,114 +42,28 @@ button {
     <input id="inicio" type="date">
     <input id="fim" type="date">
 
-    <button onclick="gerar()">Gerar participantes</button>
+    <button onclick="gerarParticipantes()">Gerar nomes</button>
 
-    <div id="lista"></div>
+    <div id="participantes"></div>
 
     <button onclick="salvarConsorcio()">Salvar</button>
-    <button onclick="voltarMenu()">Voltar</button>
-
+    <button onclick="voltar()">Voltar</button>
 </div>
 
 <!-- SORTEIO -->
 <div id="sorteio" class="tela sorteio">
 
+    <h2 id="titulo"></h2>
+
     <div class="nome" id="nomeSorteado"></div>
     <div class="mes" id="mesSorteado"></div>
 
-    <button onclick="sortear()">SORTEAR</button>
-    <button onclick="voltarMenu()">Voltar</button>
+    <button onclick="sortear()">Sortear</button>
+    <button onclick="voltar()">Voltar</button>
 
 </div>
 
-<script>
-
-/* TELAS */
-function mostrar(id){
-    document.querySelectorAll(".tela").forEach(t=>t.classList.remove("ativa"));
-    document.getElementById(id).classList.add("ativa");
-}
-
-/* LOGIN SIMPLES */
-function login(){
-    mostrar("menu");
-}
-
-function logout(){
-    mostrar("login");
-}
-
-/* NAV */
-function abrirCadastro(){ mostrar("cadastro"); }
-function abrirSorteio(){ mostrar("sorteio"); }
-function voltarMenu(){ mostrar("menu"); }
-
-/* PARTICIPANTES */
-function gerar(){
-    lista.innerHTML="";
-    for(let i=0;i<qtd.value;i++){
-        lista.innerHTML+=`<input class="p" placeholder="Nome ${i+1}" oninput="this.value=this.value.toUpperCase()">`;
-    }
-}
-
-/* MESES */
-function gerarMeses(inicio, fim){
-    let meses=[];
-    let [a,m]=inicio.split("-");
-    let [af,mf]=fim.split("-");
-    let d=new Date(a,m-1,1);
-    let f=new Date(af,mf-1,1);
-
-    while(d<=f){
-        meses.push(d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}));
-        d.setMonth(d.getMonth()+1);
-    }
-
-    return meses;
-}
-
-let pessoas=[], meses=[], usados=[];
-
-/* SALVAR */
-function salvarConsorcio(){
-    pessoas=[...document.querySelectorAll(".p")].map(e=>e.value);
-    meses=gerarMeses(inicio.value,fim.value);
-    usados=[];
-    alert("Salvo!");
-    voltarMenu();
-}
-
-/* SORTEAR */
-function sortear(){
-
-    if(usados.length === pessoas.length){
-        alert("Finalizado");
-        return;
-    }
-
-    let disp=pessoas.filter(p=>!usados.includes(p));
-    let sorteado=disp[Math.floor(Math.random()*disp.length)];
-
-    let mes=meses[usados.length];
-
-    usados.push(sorteado);
-
-    nomeSorteado.innerText = sorteado;
-    mesSorteado.innerText = "Contemplado(a) no mês de " + mes;
-
-    /* efeitos */
-    confetti();
-
-    for(let i=0;i<10;i++){
-        let b=document.createElement("div");
-        b.className="balao";
-        b.style.left=Math.random()*100+"vw";
-        b.style.background=`hsl(${Math.random()*360},70%,70%)`;
-        document.body.appendChild(b);
-    }
-}
-
-</script>
+<script type="module" src="js/app.js"></script>
 
 </body>
 </html>
