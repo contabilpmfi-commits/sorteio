@@ -22,12 +22,17 @@ function mostrar(id){
     document.getElementById(id).classList.remove("hidden");
 }
 
-/* LOGIN */
+/* LOGIN INTELIGENTE */
 window.login = async ()=>{
     try{
         await signInWithEmailAndPassword(auth,email.value,senha.value);
-    }catch{
-        await createUserWithEmailAndPassword(auth,email.value,senha.value);
+    }catch(err){
+
+        if(err.code === "auth/user-not-found"){
+            await createUserWithEmailAndPassword(auth,email.value,senha.value);
+        }else{
+            alert("Erro: " + err.message);
+        }
     }
 };
 
@@ -87,16 +92,18 @@ async function carregar(){
 }
 
 /* SORTEIO */
-window.abrir = ()=>{
-    mostrar("sorteio");
-};
+window.abrir = ()=> mostrar("sorteio");
 
 window.sortear = ()=>{
     nomeSorteado.innerText="SORTEADO!";
     mesSorteado.innerText="Contemplado 🎉";
-    confetti();
 };
 
 /* NAV */
 window.abrirCadastro=()=>mostrar("cadastro");
 window.voltar=()=>mostrar("dashboard");
+
+/* SERVICE WORKER */
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js");
+}
