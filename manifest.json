@@ -1,0 +1,20 @@
+{
+  "name": "Consórcio App",
+  "short_name": "Consórcio",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ff9a9e",
+  "theme_color": "#ff4d6d",
+  "icons": [
+    {
+      "src": "img/Logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/Logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
