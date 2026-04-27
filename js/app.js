@@ -11,10 +11,13 @@ import {
   addDoc,
   getDocs,
   query,
-  where,
-  deleteDoc,
-  doc
+  where
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* SPLASH */
+setTimeout(()=>{
+    document.getElementById("splash").style.display="none";
+},1500);
 
 /* NAV */
 function tela(id){
@@ -42,17 +45,16 @@ onAuthStateChanged(auth,(u)=>{
     }
 });
 
-/* GERAR PARTICIPANTES */
+/* PARTICIPANTES */
 window.gerarParticipantes = ()=>{
     participantes.innerHTML="";
     for(let i=0;i<qtd.value;i++){
-        participantes.innerHTML+=`<input class="p" placeholder="Nome ${i+1}">`;
+        participantes.innerHTML+=`<input class="p">`;
     }
 };
 
 /* SALVAR */
 window.salvarConsorcio = async ()=>{
-
     let nomes=[...document.querySelectorAll(".p")].map(e=>e.value);
 
     await addDoc(collection(db,"consorcios"),{
@@ -60,19 +62,16 @@ window.salvarConsorcio = async ()=>{
         pessoas:nomes,
         inicio:inicio.value,
         fim:fim.value,
-        uid:auth.currentUser.uid,
-        manual: manual.checked
+        uid:auth.currentUser.uid
     });
 
-    alert("Consórcio cadastrado com sucesso!");
-
+    alert("Salvo!");
     tela("dashboard");
     carregarConsorcios();
 };
 
 /* LISTAR */
 async function carregarConsorcios(){
-
     let q=query(collection(db,"consorcios"),
         where("uid","==",auth.currentUser.uid));
 
@@ -80,101 +79,46 @@ async function carregarConsorcios(){
 
     listaConsorcios.innerHTML="";
 
-    snap.forEach(docSnap=>{
-        let d=docSnap.data();
+    snap.forEach(doc=>{
+        let d=doc.data();
 
         listaConsorcios.innerHTML+=`
             <div class="card-consorcio">
-                <b>${d.nome}</b><br>
+                <b>${d.nome}</b>
 
                 <div class="tags">
                     ${d.pessoas.map(p=>`<span class="tag">${p}</span>`).join("")}
                 </div>
 
-                <div class="card-actions">
-                    <button onclick="abrirSorteio('${docSnap.id}')">Sortear</button>
-                    <button onclick="excluir('${docSnap.id}')">Excluir</button>
-                </div>
+                <button onclick="abrirSorteio()">Sortear</button>
             </div>
         `;
     });
 }
 
-/* EXCLUIR */
-window.excluir = async (id)=>{
-    if(confirm("Excluir consórcio?")){
-        await deleteDoc(doc(db,"consorcios",id));
-        carregarConsorcios();
-    }
-};
-
 /* SORTEIO */
 let atual=null, usados=[], meses=[];
 
-window.abrirSorteio = async (id)=>{
-
-    let snap=await getDocs(collection(db,"consorcios"));
-
-    snap.forEach(docSnap=>{
-        if(docSnap.id===id){
-            atual=docSnap.data();
-        }
-    });
-
-    meses=gerarMeses(atual.inicio,atual.fim);
-    usados=[];
-
-    titulo.innerText=atual.nome;
-
+window.abrirSorteio = ()=>{
     tela("sorteio");
 };
 
-function gerarMeses(inicio,fim){
-    let meses=[];
-    let [a,m]=inicio.split("-");
-    let [af,mf]=fim.split("-");
-    let d=new Date(a,m-1,1);
-    let f=new Date(af,mf-1,1);
-
-    while(d<=f){
-        meses.push(d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}));
-        d.setMonth(d.getMonth()+1);
-    }
-    return meses;
-}
-
 window.sortear = ()=>{
-    let disp=atual.pessoas.filter(p=>!usados.includes(p));
+    let nomes=[...document.querySelectorAll(".tag")].map(t=>t.innerText);
 
-    let sorteado=disp[Math.floor(Math.random()*disp.length)];
-    let mes=meses[usados.length];
-
-    usados.push(sorteado);
+    let sorteado=nomes[Math.floor(Math.random()*nomes.length)];
 
     nomeSorteado.innerText=sorteado;
-    mesSorteado.innerText="Contemplado(a) em "+mes;
+    mesSorteado.innerText="Contemplado(a)";
 
     confetti();
 };
 
-/* EXPORTAR */
-window.exportarTexto = ()=>{
-    let texto = atual.nome + "\n\n";
-
-    usados.forEach((p,i)=>{
-        texto += `${meses[i]} → ${p}\n`;
-    });
-
-    navigator.clipboard.writeText(texto);
-
-    alert("Copiado!");
-};
+/* SERVICE WORKER */
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js");
+}
 
 /* NAV */
 window.abrirCadastro=()=>tela("cadastro");
 window.voltar=()=>tela("dashboard");
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js")
-        .then(()=> console.log("App pronto para instalar"))
-        .catch(err=> console.log(err));
-}
