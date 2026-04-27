@@ -1,47 +1,60 @@
 body {
-    margin: 0;
-    font-family: Arial;
-    background: linear-gradient(135deg,#ff9a9e,#fad0c4);
-    display:flex;
-    justify-content:center;
+    margin:0;
+    font-family:Arial;
+    background:#ff9a9e;
+    text-align:center;
 }
 
-.container {
-    max-width:420px;
-    width:100%;
-    padding:15px;
+.tela {
+    display:none;
+    padding:20px;
 }
 
-.logo {
-    width:140px;
+.ativa {
     display:block;
-    margin:auto;
 }
 
-.box {
+.card {
+    max-width:300px;
+    margin:auto;
+    margin-top:100px;
     background:white;
-    padding:15px;
+    padding:20px;
     border-radius:15px;
-    margin-top:10px;
 }
 
 input {
     width:100%;
-    padding:10px;
-    margin:5px 0;
+    padding:12px;
+    margin:8px 0;
+    border-radius:8px;
+    border:1px solid #ccc;
 }
 
 button {
     width:100%;
-    padding:10px;
+    padding:12px;
     border:none;
     border-radius:20px;
     background:#ff4d6d;
     color:white;
-    margin-top:8px;
+    margin-top:10px;
 }
 
-#areaPrint {
-    max-height:300px;
-    overflow-y:auto;
+.sorteio {
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    height:100vh;
+}
+
+.nome {
+    font-size:40px;
+    font-weight:bold;
+    color:white;
+}
+
+.mes {
+    font-size:22px;
+    color:white;
 }
