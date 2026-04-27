@@ -46,7 +46,7 @@ onAuthStateChanged(auth,(u)=>{
 window.gerarParticipantes = ()=>{
     participantes.innerHTML="";
     for(let i=0;i<qtd.value;i++){
-        participantes.innerHTML+=`<input class="p">`;
+        participantes.innerHTML+=`<input class="p" placeholder="Nome ${i+1}">`;
     }
 };
 
@@ -84,13 +84,17 @@ async function carregarConsorcios(){
         let d=docSnap.data();
 
         listaConsorcios.innerHTML+=`
-            <div class="card">
+            <div class="card-consorcio">
                 <b>${d.nome}</b><br>
-                ${d.manual ? "📌 Importado" : "🎲 Sorteio"}
-                <br>
 
-                <button onclick="abrirSorteio('${docSnap.id}')">Abrir</button>
-                <button onclick="excluir('${docSnap.id}')">Excluir</button>
+                <div class="tags">
+                    ${d.pessoas.map(p=>`<span class="tag">${p}</span>`).join("")}
+                </div>
+
+                <div class="card-actions">
+                    <button onclick="abrirSorteio('${docSnap.id}')">Sortear</button>
+                    <button onclick="excluir('${docSnap.id}')">Excluir</button>
+                </div>
             </div>
         `;
     });
@@ -140,11 +144,9 @@ function gerarMeses(inicio,fim){
 }
 
 window.sortear = ()=>{
-
     let disp=atual.pessoas.filter(p=>!usados.includes(p));
 
     let sorteado=disp[Math.floor(Math.random()*disp.length)];
-
     let mes=meses[usados.length];
 
     usados.push(sorteado);
