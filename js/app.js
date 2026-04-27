@@ -14,15 +14,12 @@ import {
   where
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* SPLASH */
-setTimeout(()=>{
-    document.getElementById("splash").style.display="none";
-},1500);
-
-/* NAV */
-function tela(id){
-    document.querySelectorAll(".tela").forEach(t=>t.classList.remove("ativa"));
-    document.getElementById(id).classList.add("ativa");
+/* TROCA DE TELA */
+function mostrar(id){
+    ["login","dashboard","cadastro","sorteio"].forEach(t=>{
+        document.getElementById(t).classList.add("hidden");
+    });
+    document.getElementById(id).classList.remove("hidden");
 }
 
 /* LOGIN */
@@ -38,10 +35,10 @@ window.logout = ()=> signOut(auth);
 
 onAuthStateChanged(auth,(u)=>{
     if(u){
-        tela("dashboard");
-        carregarConsorcios();
+        mostrar("dashboard");
+        carregar();
     } else {
-        tela("login");
+        mostrar("login");
     }
 });
 
@@ -60,18 +57,16 @@ window.salvarConsorcio = async ()=>{
     await addDoc(collection(db,"consorcios"),{
         nome:nome.value,
         pessoas:nomes,
-        inicio:inicio.value,
-        fim:fim.value,
         uid:auth.currentUser.uid
     });
 
     alert("Salvo!");
-    tela("dashboard");
-    carregarConsorcios();
+    mostrar("dashboard");
+    carregar();
 };
 
 /* LISTAR */
-async function carregarConsorcios(){
+async function carregar(){
     let q=query(collection(db,"consorcios"),
         where("uid","==",auth.currentUser.uid));
 
@@ -83,42 +78,25 @@ async function carregarConsorcios(){
         let d=doc.data();
 
         listaConsorcios.innerHTML+=`
-            <div class="card-consorcio">
-                <b>${d.nome}</b>
-
-                <div class="tags">
-                    ${d.pessoas.map(p=>`<span class="tag">${p}</span>`).join("")}
-                </div>
-
-                <button onclick="abrirSorteio()">Sortear</button>
+            <div class="item">
+                ${d.nome}
+                <button onclick="abrir()">Abrir</button>
             </div>
         `;
     });
 }
 
 /* SORTEIO */
-let atual=null, usados=[], meses=[];
-
-window.abrirSorteio = ()=>{
-    tela("sorteio");
+window.abrir = ()=>{
+    mostrar("sorteio");
 };
 
 window.sortear = ()=>{
-    let nomes=[...document.querySelectorAll(".tag")].map(t=>t.innerText);
-
-    let sorteado=nomes[Math.floor(Math.random()*nomes.length)];
-
-    nomeSorteado.innerText=sorteado;
-    mesSorteado.innerText="Contemplado(a)";
-
+    nomeSorteado.innerText="SORTEADO!";
+    mesSorteado.innerText="Contemplado 🎉";
     confetti();
 };
 
-/* SERVICE WORKER */
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js");
-}
-
 /* NAV */
-window.abrirCadastro=()=>tela("cadastro");
-window.voltar=()=>tela("dashboard");
+window.abrirCadastro=()=>mostrar("cadastro");
+window.voltar=()=>mostrar("dashboard");
