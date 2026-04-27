@@ -8,7 +8,6 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
-
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -71,7 +70,6 @@ button {
     text-align: left;
     margin-top: 10px;
 }
-
 </style>
 </head>
 
@@ -105,7 +103,6 @@ button {
         <div id="lista"></div>
 
         <button onclick="iniciar()">INICIAR SORTEIO</button>
-
         <button onclick="logout()">Sair</button>
 
         <div id="resultado"></div>
@@ -136,10 +133,12 @@ import {
   getFirestore, 
   collection, 
   addDoc, 
-  getDocs 
+  getDocs,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* SUA CONFIG */
+/* CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyBDxaSPwNAG9o5t2EmImCyr6qQb8rySGqY",
   authDomain: "consorcio-app-fbef2.firebaseapp.com",
@@ -165,7 +164,7 @@ window.login = async function(){
     }
 }
 
-/* ESTADO LOGIN */
+/* ESTADO */
 onAuthStateChanged(auth, (usuario)=>{
     if(usuario){
         document.getElementById("loginBox").style.display="none";
@@ -184,26 +183,38 @@ window.logout = function(){
 
 /* SALVAR */
 async function salvar(nome, historico){
+    const user = auth.currentUser;
+
     await addDoc(collection(db, "sorteios"), {
         nome,
         historico,
+        uid: user.uid,
         data: new Date()
     });
 }
 
 /* CARREGAR */
 async function carregar(){
-    let query = await getDocs(collection(db, "sorteios"));
+
+    const user = auth.currentUser;
+
+    const q = query(
+        collection(db, "sorteios"),
+        where("uid", "==", user.uid)
+    );
+
+    const querySnapshot = await getDocs(q);
+
     let h = document.getElementById("historico");
     h.innerHTML = "";
 
-    query.forEach(doc=>{
+    querySnapshot.forEach(doc=>{
         let d = doc.data();
         h.innerHTML += `<p><b>${d.nome}</b><br>${d.historico}</p><hr>`;
     });
 }
 
-/* LÓGICA DO SISTEMA */
+/* SISTEMA */
 window.gerar = function(){
     let qtd = document.getElementById("qtd").value;
     let lista = document.getElementById("lista");
@@ -243,7 +254,6 @@ window.iniciar = function(){
     }
 
     document.getElementById("historico").innerHTML="";
-
     sortear();
 }
 
