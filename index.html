@@ -64,18 +64,21 @@
         </div>
 
         <!-- SORTEIO -->
-        <div id="sorteio" class="hidden sorteio-box">
+       <div id="sorteio" class="hidden">
 
     <h2 id="titulo"></h2>
 
-    <div class="roleta" id="roleta">...</div>
+    <div class="nome" id="nomeSorteado"></div>
+    <div class="mes" id="mesSorteado"></div>
 
-    <div class="resultado-final">
-        <div class="nome" id="nomeSorteado"></div>
-        <div class="mes" id="mesSorteado"></div>
-    </div>
+    <select id="manualPessoa"></select>
 
-    <button onclick="sortear()">🎲 Sortear</button>
+    <button onclick="sortear()">🎲 Sortear automático</button>
+    <button onclick="sortearManual()">✍️ Sortear manual</button>
+
+    <button onclick="editarConsorcio()">Editar</button>
+    <button onclick="excluirConsorcio()">Excluir</button>
+
     <button onclick="voltar()">Voltar</button>
 
 </div>
