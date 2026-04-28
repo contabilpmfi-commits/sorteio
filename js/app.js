@@ -59,18 +59,29 @@ window.logout = ()=> signOut(auth);
 
 onAuthStateChanged(auth,(user)=>{
 
+    // ESCONDE TUDO PRIMEIRO (ESSA É A CHAVE)
+    document.getElementById("login").classList.add("hidden");
+    document.getElementById("dashboard").classList.add("hidden");
+    document.getElementById("cadastro").classList.add("hidden");
+    document.getElementById("consorcio").classList.add("hidden");
+
     if(user){
 
         userEmail.innerText = user.email;
 
-        mostrar("dashboard");
+        header.classList.remove("hidden");
+
+        document.getElementById("dashboard").classList.remove("hidden");
+
         carregar();
 
     } else {
 
         userEmail.innerText = "";
 
-        mostrar("login");
+        header.classList.add("hidden");
+
+        document.getElementById("login").classList.remove("hidden");
     }
 });
 
