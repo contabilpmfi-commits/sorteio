@@ -44,12 +44,12 @@
 
     <h3>Novo Consórcio</h3>
 
-    <input id="nome" placeholder="Nome">
-    <input id="qtd" type="number" placeholder="Qtd participantes">
+    <input id="nome" placeholder="Nome do consórcio">
+    <input id="qtd" type="number" placeholder="Quantidade">
     <input id="inicio" type="date">
     <input id="fim" type="date">
 
-    <button onclick="gerarParticipantes()">Gerar nomes</button>
+    <button onclick="gerarParticipantes()">Gerar participantes</button>
 
     <div id="participantes"></div>
 
@@ -63,7 +63,10 @@
 
     <h2 id="titulo"></h2>
 
+    <label>Participante</label>
     <select id="manualPessoa"></select>
+
+    <label>Mês</label>
     <select id="manualMes"></select>
 
     <button onclick="sortear()">🎲 Sortear automático</button>
@@ -71,7 +74,7 @@
 
     <h3>Histórico</h3>
 
-    <div id="historico"></div>
+    <div id="historico" class="extrato"></div>
 
     <button onclick="gerarImagem()">📸 Gerar extrato</button>
 
