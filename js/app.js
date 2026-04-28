@@ -17,7 +17,7 @@ import {
   updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* TELAS */
+/* TELA */
 function mostrar(id){
     ["login","dashboard","cadastro","sorteio"].forEach(t=>{
         document.getElementById(t).classList.add("hidden");
@@ -68,7 +68,6 @@ window.salvarConsorcio = async ()=>{
 
 /* LISTAR */
 async function carregar(){
-
     let q=query(collection(db,"consorcios"),
         where("uid","==",auth.currentUser.uid));
 
@@ -93,7 +92,6 @@ let atual=null;
 let atualId=null;
 
 window.abrir = async (id)=>{
-
     atualId=id;
 
     let snap=await getDoc(doc(db,"consorcios",id));
@@ -124,7 +122,6 @@ function gerarMeses(i,f){
 
 /* SELECTS */
 function carregarSelects(){
-
     manualPessoa.innerHTML="";
     atual.pessoas.forEach(p=>{
         manualPessoa.innerHTML+=`<option>${p}</option>`;
@@ -138,9 +135,8 @@ function carregarSelects(){
     });
 }
 
-/* SORT */
+/* SORTEIO */
 window.sortear = async ()=>{
-
     let meses=gerarMeses(atual.inicio,atual.fim);
 
     let usados=atual.sorteios.map(s=>s.pessoa);
@@ -158,7 +154,6 @@ window.sortear = async ()=>{
 
 /* MANUAL */
 window.sortearManual = async ()=>{
-
     atual.sorteios.push({
         pessoa:manualPessoa.value,
         mes:manualMes.value
@@ -167,19 +162,16 @@ window.sortearManual = async ()=>{
     salvar();
 };
 
-/* SALVAR SORTEIO */
+/* SALVAR */
 async function salvar(){
-
     await updateDoc(doc(db,"consorcios",atualId),{
         sorteios:atual.sorteios
     });
-
     render();
 }
 
 /* HISTÓRICO */
 function render(){
-
     historico.innerHTML="";
 
     atual.sorteios.forEach(s=>{
@@ -191,11 +183,27 @@ function render(){
     });
 }
 
-/* IMAGEM */
+/* IMAGEM PROFISSIONAL */
 window.gerarImagem = async ()=>{
-    let canvas = await html2canvas(historico);
+
+    tituloImagem.innerText = atual.nome;
+
+    listaImagem.innerHTML="";
+
+    atual.sorteios.forEach(s=>{
+        listaImagem.innerHTML += `
+            <div>📅 ${s.mes} → <b>${s.pessoa}</b></div>
+        `;
+    });
+
+    areaImagem.classList.remove("hidden");
+
+    let canvas = await html2canvas(areaImagem);
+
+    areaImagem.classList.add("hidden");
+
     let link=document.createElement("a");
-    link.download="extrato.png";
+    link.download="resultado.png";
     link.href=canvas.toDataURL();
     link.click();
 };
