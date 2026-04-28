@@ -3,7 +3,7 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-aut
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: ""AIzaSyBDxaSPwNAG9o5t2EmImCyr6qQb8rySGqY"",
+  apiKey: "AIzaSyBDxaSPwNAG9o5t2EmImCyr6qQb8rySGqY",
   authDomain: "consorcio-app-fbef2.firebaseapp.com",
   projectId: "consorcio-app-fbef2"
 };
