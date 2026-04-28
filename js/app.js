@@ -59,11 +59,13 @@ window.logout = ()=> signOut(auth);
 
 onAuthStateChanged(auth,(user)=>{
 
-    // ESCONDE TUDO PRIMEIRO (ESSA É A CHAVE)
-    document.getElementById("login").classList.add("hidden");
-    document.getElementById("dashboard").classList.add("hidden");
-    document.getElementById("cadastro").classList.add("hidden");
-    document.getElementById("consorcio").classList.add("hidden");
+    // 🔒 desbloqueia UI só depois do Firebase responder
+    document.body.classList.remove("loading");
+
+    // 🔥 limpa tudo sempre
+    ["login","dashboard","cadastro","consorcio"].forEach(t=>{
+        document.getElementById(t).classList.add("hidden");
+    });
 
     if(user){
 
@@ -84,7 +86,6 @@ onAuthStateChanged(auth,(user)=>{
         document.getElementById("login").classList.remove("hidden");
     }
 });
-
 /* ================= LISTAR ================= */
 
 async function carregar(){
