@@ -110,3 +110,7 @@ select { flex:1; }
 }
 
 .logo-img { width:70px; }
+
+body.loading .tela {
+    display:none !important;
+}
