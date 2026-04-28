@@ -21,10 +21,21 @@ import {
 /* ================= TELA ================= */
 
 function mostrar(id){
+
+    // esconder tudo
     ["login","dashboard","cadastro","consorcio"].forEach(t=>{
         document.getElementById(t).classList.add("hidden");
     });
+
+    // mostrar tela atual
     document.getElementById(id).classList.remove("hidden");
+
+    // controlar header
+    if(id === "login"){
+        header.classList.add("hidden");
+    } else {
+        header.classList.remove("hidden");
+    }
 }
 
 /* ================= LOGIN ================= */
