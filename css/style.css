@@ -6,6 +6,7 @@ body {
     background: linear-gradient(135deg,#ff4d6d,#ff8fa3);
 }
 
+/* APP */
 .app {
     max-width:420px;
     height:100vh;
@@ -34,17 +35,10 @@ body {
 
 /* TELAS */
 .tela {
+    display:none;
     flex:1;
     overflow:auto;
     padding:15px;
-}
-
-.hidden { display:none; }
-
-.center {
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
 }
 
 /* INPUT */
@@ -110,7 +104,3 @@ select { flex:1; }
 }
 
 .logo-img { width:70px; }
-
-body.loading .tela {
-    display:none !important;
-}
