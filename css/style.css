@@ -59,3 +59,46 @@ button {
 .hidden {
     display:none;
 }
+/* ===== SORTEIO PREMIUM ===== */
+
+.sorteio-box {
+    text-align:center;
+}
+
+.roleta {
+    font-size:28px;
+    font-weight:bold;
+    height:60px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:20px 0;
+    color:#ff4d6d;
+    animation:none;
+}
+
+.resultado-final {
+    margin-top:20px;
+}
+
+.nome {
+    font-size:38px;
+    font-weight:bold;
+    color:#ff4d6d;
+}
+
+.mes {
+    font-size:20px;
+    color:#555;
+}
+
+/* ANIMAÇÃO */
+.girando {
+    animation: piscar 0.1s infinite;
+}
+
+@keyframes piscar {
+    0% {opacity:0.3;}
+    50% {opacity:1;}
+    100% {opacity:0.3;}
+}
