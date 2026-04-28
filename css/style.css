@@ -1,6 +1,11 @@
+/* RESET GLOBAL (ESSENCIAL PRA NÃO QUEBRAR LAYOUT) */
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin:0;
-    font-family:Arial;
+    font-family:Arial, sans-serif;
     background: linear-gradient(135deg,#ff4d6d,#ff8fa3);
     display:flex;
     justify-content:center;
@@ -21,13 +26,13 @@ body {
     overflow:hidden;
 }
 
-/* TOPO FIXO */
+/* LOGO */
 .logo {
     width:90px;
     margin:10px auto;
 }
 
-/* ÁREA INTERNA COM SCROLL */
+/* ÁREA INTERNA */
 .content {
     flex:1;
     overflow-y:auto;
@@ -38,12 +43,20 @@ body {
 input, select {
     width:100%;
     padding:10px;
-    margin:5px 0;
+    margin:6px 0;
     border-radius:8px;
     border:1px solid #ddd;
+    outline:none;
+    font-size:14px;
 }
 
-/* BOTÃO */
+/* FOCO BONITO */
+input:focus, select:focus {
+    border-color:#ff4d6d;
+    box-shadow:0 0 5px rgba(255,77,109,0.3);
+}
+
+/* BOTÃO (CORRIGIDO) */
 button {
     width:100%;
     padding:10px;
@@ -52,11 +65,17 @@ button {
     background: linear-gradient(45deg,#ff4d6d,#ff758f);
     color:white;
     font-weight:bold;
-    margin-top:5px;
+    margin-top:8px;
     cursor:pointer;
+    transition:0.2s;
 }
 
-/* AÇÕES */
+/* HOVER */
+button:hover {
+    transform:scale(1.02);
+}
+
+/* AÇÕES (RESETAR / EXCLUIR) */
 .acoes {
     display:flex;
     gap:10px;
@@ -85,6 +104,15 @@ button {
 #historico div {
     padding:6px;
     border-bottom:1px solid #eee;
+    font-size:14px;
+}
+
+/* ITEM LISTA */
+.item {
+    background:#f5f5f5;
+    padding:10px;
+    border-radius:10px;
+    margin-top:10px;
 }
 
 /* ESCONDER */
@@ -92,7 +120,7 @@ button {
     display:none;
 }
 
-/* EXTRATO */
+/* EXTRATO (IMAGEM) */
 .extrato-img {
     width:400px;
     background:white;
@@ -103,4 +131,15 @@ button {
 
 .logo-img {
     width:80px;
+    margin-bottom:10px;
+}
+
+/* SCROLL BONITO */
+.content::-webkit-scrollbar {
+    width:6px;
+}
+
+.content::-webkit-scrollbar-thumb {
+    background:#ff758f;
+    border-radius:10px;
 }
