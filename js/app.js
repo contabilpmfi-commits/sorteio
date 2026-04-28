@@ -14,11 +14,10 @@ import {
   where,
   doc,
   getDoc,
-  updateDoc,
-  deleteDoc
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* ================= TELA ================= */
+/* TELAS */
 function mostrar(id){
     ["login","dashboard","cadastro","sorteio"].forEach(t=>{
         document.getElementById(t).classList.add("hidden");
@@ -26,9 +25,9 @@ function mostrar(id){
     document.getElementById(id).classList.remove("hidden");
 }
 
-/* ================= LOGIN ================= */
+/* LOGIN */
 window.login = async ()=>{
-    await signInWithEmailAndPassword(auth, email.value, senha.value);
+    await signInWithEmailAndPassword(auth,email.value,senha.value);
 };
 
 window.logout = ()=> signOut(auth);
@@ -36,21 +35,21 @@ window.logout = ()=> signOut(auth);
 onAuthStateChanged(auth,(u)=>{
     if(u){
         mostrar("dashboard");
-        carregarConsorcios();
+        carregar();
     } else {
         mostrar("login");
     }
 });
 
-/* ================= GERAR PARTICIPANTES ================= */
+/* PARTICIPANTES */
 window.gerarParticipantes = ()=>{
     participantes.innerHTML="";
     for(let i=0;i<qtd.value;i++){
-        participantes.innerHTML+=`<input class="p" placeholder="Nome ${i+1}">`;
+        participantes.innerHTML+=`<input class="p">`;
     }
 };
 
-/* ================= SALVAR ================= */
+/* SALVAR */
 window.salvarConsorcio = async ()=>{
     let nomes=[...document.querySelectorAll(".p")].map(e=>e.value);
 
@@ -60,153 +59,147 @@ window.salvarConsorcio = async ()=>{
         inicio:inicio.value,
         fim:fim.value,
         uid:auth.currentUser.uid,
-        sorteados:[]
+        sorteios:[]
     });
 
-    alert("Salvo!");
     mostrar("dashboard");
-    carregarConsorcios();
+    carregar();
 };
 
-/* ================= LISTAR ================= */
-async function carregarConsorcios(){
+/* LISTAR */
+async function carregar(){
 
-    let q = query(
-        collection(db,"consorcios"),
-        where("uid","==",auth.currentUser.uid)
-    );
+    let q=query(collection(db,"consorcios"),
+        where("uid","==",auth.currentUser.uid));
 
-    let snap = await getDocs(q);
+    let snap=await getDocs(q);
 
     listaConsorcios.innerHTML="";
 
     snap.forEach(docSnap=>{
-        let d = docSnap.data();
+        let d=docSnap.data();
 
         listaConsorcios.innerHTML+=`
             <div class="item">
-                <b>${d.nome}</b>
-                <button onclick="abrirConsorcio('${docSnap.id}')">Abrir</button>
+                ${d.nome}
+                <button onclick="abrir('${docSnap.id}')">Abrir</button>
             </div>
         `;
     });
 }
 
-/* ================= ABRIR ================= */
-let atual = null;
-let atualId = null;
+/* ABRIR */
+let atual=null;
+let atualId=null;
 
-window.abrirConsorcio = async (id)=>{
+window.abrir = async (id)=>{
 
-    atualId = id;
+    atualId=id;
 
-    const snap = await getDoc(doc(db,"consorcios",id));
+    let snap=await getDoc(doc(db,"consorcios",id));
+    atual=snap.data();
 
-    atual = snap.data();
+    titulo.innerText=atual.nome;
 
-    titulo.innerText = atual.nome;
+    if(!atual.sorteios) atual.sorteios=[];
 
-    /* carregar dropdown manual */
-    manualPessoa.innerHTML = "";
-    atual.pessoas.forEach(p=>{
-        manualPessoa.innerHTML += `<option>${p}</option>`;
-    });
+    carregarSelects();
+    render();
 
     mostrar("sorteio");
 };
 
-/* ================= MESES ================= */
-function gerarMeses(inicio,fim){
-    let meses=[];
-    let d=new Date(inicio);
-    let f=new Date(fim);
+/* MESES */
+function gerarMeses(i,f){
+    let m=[];
+    let d=new Date(i);
+    let fim=new Date(f);
 
-    while(d<=f){
-        meses.push(d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}));
+    while(d<=fim){
+        m.push(d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}));
         d.setMonth(d.getMonth()+1);
     }
-
-    return meses;
+    return m;
 }
 
-/* ================= SORTEIO AUTOMÁTICO ================= */
+/* SELECTS */
+function carregarSelects(){
+
+    manualPessoa.innerHTML="";
+    atual.pessoas.forEach(p=>{
+        manualPessoa.innerHTML+=`<option>${p}</option>`;
+    });
+
+    let meses=gerarMeses(atual.inicio,atual.fim);
+
+    manualMes.innerHTML="";
+    meses.forEach(m=>{
+        manualMes.innerHTML+=`<option>${m}</option>`;
+    });
+}
+
+/* SORT */
 window.sortear = async ()=>{
 
-    let meses = gerarMeses(atual.inicio, atual.fim);
+    let meses=gerarMeses(atual.inicio,atual.fim);
 
-    let disponiveis = atual.pessoas.filter(p=>!atual.sorteados.includes(p));
+    let usados=atual.sorteios.map(s=>s.pessoa);
+    let livres=atual.pessoas.filter(p=>!usados.includes(p));
 
-    if(disponiveis.length === 0){
-        alert("Finalizado!");
-        return;
-    }
+    if(livres.length===0) return alert("Finalizado");
 
-    let sorteado = disponiveis[Math.floor(Math.random()*disponiveis.length)];
-    let mes = meses[atual.sorteados.length];
+    let p=livres[Math.floor(Math.random()*livres.length)];
+    let mes=meses[atual.sorteios.length];
 
-    atual.sorteados.push(sorteado);
+    atual.sorteios.push({pessoa:p,mes});
 
-    nomeSorteado.innerText = sorteado;
-    mesSorteado.innerText = "Contemplado(a) em " + mes;
-
-    await updateDoc(doc(db,"consorcios",atualId),{
-        sorteados: atual.sorteados
-    });
+    salvar();
 };
 
-/* ================= SORTEIO MANUAL ================= */
+/* MANUAL */
 window.sortearManual = async ()=>{
 
-    let meses = gerarMeses(atual.inicio, atual.fim);
+    atual.sorteios.push({
+        pessoa:manualPessoa.value,
+        mes:manualMes.value
+    });
 
-    let pessoa = manualPessoa.value;
+    salvar();
+};
 
-    if(atual.sorteados.includes(pessoa)){
-        alert("Já sorteado!");
-        return;
-    }
-
-    let mes = meses[atual.sorteados.length];
-
-    atual.sorteados.push(pessoa);
-
-    nomeSorteado.innerText = pessoa;
-    mesSorteado.innerText = "Contemplado(a) em " + mes;
+/* SALVAR SORTEIO */
+async function salvar(){
 
     await updateDoc(doc(db,"consorcios",atualId),{
-        sorteados: atual.sorteados
-    });
-};
-
-/* ================= EDITAR ================= */
-window.editarConsorcio = ()=>{
-    nome.value = atual.nome;
-    qtd.value = atual.pessoas.length;
-    inicio.value = atual.inicio;
-    fim.value = atual.fim;
-
-    gerarParticipantes();
-
-    document.querySelectorAll(".p").forEach((e,i)=>{
-        e.value = atual.pessoas[i];
+        sorteios:atual.sorteios
     });
 
-    mostrar("cadastro");
+    render();
+}
+
+/* HISTÓRICO */
+function render(){
+
+    historico.innerHTML="";
+
+    atual.sorteios.forEach(s=>{
+        historico.innerHTML+=`
+            <div class="item">
+                <b>${s.mes}</b> → ${s.pessoa}
+            </div>
+        `;
+    });
+}
+
+/* IMAGEM */
+window.gerarImagem = async ()=>{
+    let canvas = await html2canvas(historico);
+    let link=document.createElement("a");
+    link.download="extrato.png";
+    link.href=canvas.toDataURL();
+    link.click();
 };
 
-/* ================= EXCLUIR ================= */
-window.excluirConsorcio = async ()=>{
-
-    if(!confirm("Excluir consórcio?")) return;
-
-    await deleteDoc(doc(db,"consorcios",atualId));
-
-    alert("Excluído!");
-
-    mostrar("dashboard");
-    carregarConsorcios();
-};
-
-/* ================= NAV ================= */
-window.abrirCadastro = ()=>mostrar("cadastro");
-window.voltar = ()=>mostrar("dashboard");
+/* NAV */
+window.abrirCadastro=()=>mostrar("cadastro");
+window.voltar=()=>mostrar("dashboard");
