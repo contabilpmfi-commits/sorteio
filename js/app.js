@@ -18,14 +18,22 @@ import {
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* ================= ESTADO ================= */
+
+let consorcios = [];
+let atual = null;
+let atualId = null;
+
 /* ================= UI ================= */
 
-function mostrar(id){
-
+function esconderTudo(){
     ["login","dashboard","cadastro","consorcio"].forEach(t=>{
         document.getElementById(t).classList.add("hidden");
     });
+}
 
+function mostrar(id){
+    esconderTudo();
     document.getElementById(id).classList.remove("hidden");
 
     if(id === "login"){
@@ -47,21 +55,24 @@ window.login = async ()=>{
 
 window.logout = ()=> signOut(auth);
 
-onAuthStateChanged(auth,(u)=>{
-    if(u){
-        userEmail.innerText = u.email;
+/* ================= AUTENTICAÇÃO ================= */
+
+onAuthStateChanged(auth,(user)=>{
+
+    if(user){
+
+        userEmail.innerText = user.email;
+
         mostrar("dashboard");
         carregar();
+
     } else {
+
+        userEmail.innerText = "";
+
         mostrar("login");
     }
 });
-
-/* ================= DADOS ================= */
-
-let consorcios = [];
-let atual = null;
-let atualId = null;
 
 /* ================= LISTAR ================= */
 
@@ -88,7 +99,8 @@ async function carregar(){
     consorcios.forEach(c=>{
         listaConsorcios.innerHTML += `
             <div class="card-item" onclick="abrir('${c.id}')">
-                ${c.nome}
+                <b>${c.nome}</b><br>
+                <small>${c.inicio} → ${c.fim}</small>
             </div>
         `;
     });
@@ -116,9 +128,11 @@ window.abrir = async (id)=>{
 
 window.gerarParticipantes = ()=>{
     participantes.innerHTML="";
+
     for(let i=0;i<qtd.value;i++){
         participantes.innerHTML += `
-        <input class="p" placeholder="Nome ${i+1}">
+            <input class="p" placeholder="Nome ${i+1}" 
+            oninput="this.value=this.value.toUpperCase()">
         `;
     }
 };
@@ -126,6 +140,11 @@ window.gerarParticipantes = ()=>{
 window.salvarConsorcio = async ()=>{
 
     let nomes = [...document.querySelectorAll(".p")].map(e=>e.value);
+
+    if(nomes.length === 0){
+        alert("Preencha participantes");
+        return;
+    }
 
     await addDoc(collection(db,"consorcios"),{
         nome:nome.value,
@@ -135,6 +154,8 @@ window.salvarConsorcio = async ()=>{
         sorteios:[],
         uid:auth.currentUser.uid
     });
+
+    alert("Salvo!");
 
     mostrar("dashboard");
     carregar();
@@ -172,6 +193,7 @@ function renderTabela(){
 
         tabela.innerHTML += `
         <div class="linha-tabela">
+
             <span>${mes}</span>
 
             <select onchange="salvarManual(${i},this.value)">
@@ -180,6 +202,7 @@ function renderTabela(){
                     `<option ${p===pessoa?"selected":""}>${p}</option>`
                 ).join("")}
             </select>
+
         </div>
         `;
     });
@@ -193,8 +216,8 @@ window.sortear = async ()=>{
 
     let livres = atual.pessoas.filter(p=>!usados.includes(p));
 
-    if(livres.length===0){
-        alert("Finalizado");
+    if(livres.length === 0){
+        alert("Todos já foram sorteados");
         return;
     }
 
@@ -231,9 +254,9 @@ async function salvar(){
 
 window.resetar = async ()=>{
 
-    if(!confirm("Resetar?")) return;
+    if(!confirm("Resetar sorteio?")) return;
 
-    atual.sorteios=[];
+    atual.sorteios = [];
 
     await salvar();
 };
@@ -242,9 +265,11 @@ window.resetar = async ()=>{
 
 window.excluir = async ()=>{
 
-    if(!confirm("Excluir?")) return;
+    if(!confirm("Excluir consórcio?")) return;
 
     await deleteDoc(doc(db,"consorcios",atualId));
+
+    alert("Excluído!");
 
     mostrar("dashboard");
     carregar();
@@ -260,7 +285,7 @@ window.gerarImagem = async ()=>{
 
     atual.sorteios.forEach((s,i)=>{
         listaImagem.innerHTML += `
-            <div>${s.mes || (i+1)+"º mês"} → ${s.pessoa}</div>
+            <div>${s.mes || (i+1)+"º mês"} → <b>${s.pessoa}</b></div>
         `;
     });
 
