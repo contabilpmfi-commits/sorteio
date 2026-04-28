@@ -7,84 +7,79 @@
 <title>Consórcio App</title>
 
 <link rel="stylesheet" href="css/style.css">
-<link rel="manifest" href="manifest.json">
 
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
 </head>
 
 <body>
 
 <div class="app">
 
-    <!-- CARD CENTRAL -->
-    <div class="card">
+<div class="card">
 
-        <!-- LOGO FIXA -->
-        <img src="img/Logo.png" class="logo">
+<img src="img/Logo.png" class="logo">
 
-        <!-- LOGIN -->
-        <div id="login">
+<!-- LOGIN -->
+<div id="login">
     <h2>Login</h2>
-
     <input id="email" placeholder="Email">
     <input id="senha" type="password" placeholder="Senha">
-
     <button onclick="login()">Entrar</button>
-    <button onclick="registrar()">Criar conta</button>
 </div>
 
-        <!-- DASHBOARD -->
-        <div id="dashboard" class="hidden">
-            <h2>Consórcios</h2>
+<!-- DASHBOARD -->
+<div id="dashboard" class="hidden">
+    <h2>Consórcios</h2>
 
-            <button onclick="abrirCadastro()">+ Novo</button>
+    <button onclick="abrirCadastro()">+ Novo</button>
 
-            <div id="listaConsorcios"></div>
+    <div id="listaConsorcios"></div>
 
-            <button onclick="logout()">Sair</button>
-        </div>
+    <button onclick="logout()">Sair</button>
+</div>
 
-        <!-- CADASTRO -->
-        <div id="cadastro" class="hidden">
+<!-- CADASTRO -->
+<div id="cadastro" class="hidden">
 
-            <h3>Novo Consórcio</h3>
+    <h3>Novo Consórcio</h3>
 
-            <input id="nome" placeholder="Nome do consórcio">
-            <input id="qtd" type="number" placeholder="Participantes">
-            <input id="inicio" type="date">
-            <input id="fim" type="date">
+    <input id="nome" placeholder="Nome">
+    <input id="qtd" type="number" placeholder="Qtd participantes">
+    <input id="inicio" type="date">
+    <input id="fim" type="date">
 
-            <button onclick="gerarParticipantes()">Gerar nomes</button>
+    <button onclick="gerarParticipantes()">Gerar nomes</button>
 
-            <div id="participantes"></div>
+    <div id="participantes"></div>
 
-            <button onclick="salvarConsorcio()">Salvar</button>
-            <button onclick="voltar()">Voltar</button>
+    <button onclick="salvarConsorcio()">Salvar</button>
+    <button onclick="voltar()">Voltar</button>
 
-        </div>
+</div>
 
-        <!-- SORTEIO -->
-       <div id="sorteio" class="hidden">
+<!-- SORTEIO -->
+<div id="sorteio" class="hidden">
 
     <h2 id="titulo"></h2>
 
-    <div class="nome" id="nomeSorteado"></div>
-    <div class="mes" id="mesSorteado"></div>
-
     <select id="manualPessoa"></select>
+    <select id="manualMes"></select>
 
     <button onclick="sortear()">🎲 Sortear automático</button>
-    <button onclick="sortearManual()">✍️ Sortear manual</button>
+    <button onclick="sortearManual()">✍️ Inserir manual</button>
 
-    <button onclick="editarConsorcio()">Editar</button>
-    <button onclick="excluirConsorcio()">Excluir</button>
+    <h3>Histórico</h3>
+
+    <div id="historico"></div>
+
+    <button onclick="gerarImagem()">📸 Gerar extrato</button>
 
     <button onclick="voltar()">Voltar</button>
 
 </div>
 
-    </div>
-
+</div>
 </div>
 
 <script type="module" src="js/app.js"></script>
