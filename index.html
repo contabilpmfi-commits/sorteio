@@ -10,12 +10,12 @@
 
 </head>
 
-<body class="loading">
+<body>
 
 <div class="app">
 
     <!-- HEADER -->
-    <div class="header hidden" id="header">
+    <div class="header" id="header" style="display:none;">
         <img src="img/Logo.png">
         <div class="user">
             <span id="userEmail"></span>
@@ -24,7 +24,7 @@
     </div>
 
     <!-- LOGIN -->
-    <div id="login" class="tela center">
+    <div id="login" class="tela">
         <h2>Login</h2>
         <input id="email" placeholder="Email">
         <input id="senha" type="password" placeholder="Senha">
@@ -32,7 +32,7 @@
     </div>
 
     <!-- DASHBOARD -->
-    <div id="dashboard" class="tela hidden">
+    <div id="dashboard" class="tela">
         <h2>Meus Consórcios</h2>
 
         <button onclick="abrirCadastro()">+ Novo</button>
@@ -41,7 +41,7 @@
     </div>
 
     <!-- CADASTRO -->
-    <div id="cadastro" class="tela hidden">
+    <div id="cadastro" class="tela">
         <h3>Novo Consórcio</h3>
 
         <input id="nome" placeholder="Nome">
@@ -58,7 +58,7 @@
     </div>
 
     <!-- CONSÓRCIO -->
-    <div id="consorcio" class="tela hidden">
+    <div id="consorcio" class="tela">
 
         <h2 id="titulo"></h2>
 
@@ -81,7 +81,7 @@
 </div>
 
 <!-- AREA IMAGEM -->
-<div id="areaImagem" class="hidden extrato-img">
+<div id="areaImagem" class="extrato-img" style="display:none;">
     <img src="img/Logo.png" class="logo-img">
     <h2 id="tituloImagem"></h2>
     <div id="listaImagem"></div>
