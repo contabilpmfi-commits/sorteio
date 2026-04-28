@@ -10,302 +10,223 @@ import {
   collection,
   addDoc,
   getDocs,
-  query,
-  where,
   doc,
   getDoc,
   updateDoc,
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* ================= ESTADO ================= */
+/* ===== TELA ===== */
 
-let consorcios = [];
-let atual = null;
-let atualId = null;
+function setTela(tela){
 
-/* ================= UI ================= */
-
-function esconderTudo(){
-    ["login","dashboard","cadastro","consorcio"].forEach(t=>{
-        document.getElementById(t).classList.add("hidden");
+    ["login","dashboard","cadastro","consorcio"].forEach(id=>{
+        document.getElementById(id).style.display="none";
     });
+
+    document.getElementById(tela).style.display="block";
+
+    header.style.display = tela === "login" ? "none":"flex";
 }
 
-function mostrar(id){
-    esconderTudo();
-    document.getElementById(id).classList.remove("hidden");
-
-    if(id === "login"){
-        header.classList.add("hidden");
-    } else {
-        header.classList.remove("hidden");
-    }
-}
-
-/* ================= LOGIN ================= */
+/* ===== LOGIN ===== */
 
 window.login = async ()=>{
     try{
         await signInWithEmailAndPassword(auth,email.value,senha.value);
     }catch(e){
-        alert("Erro: " + e.code);
+        alert("Erro login: " + e.code);
     }
 };
 
 window.logout = ()=> signOut(auth);
 
-/* ================= AUTENTICAÇÃO ================= */
+/* ===== AUTH ===== */
 
 onAuthStateChanged(auth,(user)=>{
 
-    // 🔒 desbloqueia UI só depois do Firebase responder
-    document.body.classList.remove("loading");
-
-    // 🔥 limpa tudo sempre
-    ["login","dashboard","cadastro","consorcio"].forEach(t=>{
-        document.getElementById(t).classList.add("hidden");
-    });
-
     if(user){
-
         userEmail.innerText = user.email;
-
-        header.classList.remove("hidden");
-
-        document.getElementById("dashboard").classList.remove("hidden");
-
+        setTela("dashboard");
         carregar();
-
-    } else {
-
-        userEmail.innerText = "";
-
-        header.classList.add("hidden");
-
-        document.getElementById("login").classList.remove("hidden");
+    }else{
+        setTela("login");
     }
 });
-/* ================= LISTAR ================= */
+
+/* ===== DADOS ===== */
+
+let atual=null;
+let atualId=null;
+
+/* ===== LISTAR (COMPARTILHADO) ===== */
 
 async function carregar(){
 
-    listaConsorcios.innerHTML = "";
+    let snap = await getDocs(collection(db,"consorcios"));
 
-    let q = query(
-        collection(db,"consorcios"),
-        where("uid","==",auth.currentUser.uid)
-    );
-
-    let snap = await getDocs(q);
-
-    consorcios = [];
+    listaConsorcios.innerHTML="";
 
     snap.forEach(docSnap=>{
-        consorcios.push({
-            id:docSnap.id,
-            ...docSnap.data()
-        });
-    });
+        let d = docSnap.data();
 
-    consorcios.forEach(c=>{
-        listaConsorcios.innerHTML += `
-            <div class="card-item" onclick="abrir('${c.id}')">
-                <b>${c.nome}</b><br>
-                <small>${c.inicio} → ${c.fim}</small>
-            </div>
+        listaConsorcios.innerHTML+=`
+        <div class="card-item" onclick="abrir('${docSnap.id}')">
+            <b>${d.nome}</b><br>
+            <small>${d.inicio} → ${d.fim}</small>
+        </div>
         `;
     });
 }
 
-/* ================= ABRIR ================= */
+/* ===== ABRIR ===== */
 
 window.abrir = async (id)=>{
-
-    atualId = id;
+    atualId=id;
 
     let snap = await getDoc(doc(db,"consorcios",id));
-    atual = snap.data();
+    atual=snap.data();
 
-    if(!atual.sorteios) atual.sorteios = [];
+    if(!atual.sorteios) atual.sorteios=[];
 
-    titulo.innerText = atual.nome;
+    titulo.innerText=atual.nome;
 
     renderTabela();
 
-    mostrar("consorcio");
+    setTela("consorcio");
 };
 
-/* ================= CADASTRO ================= */
+/* ===== CADASTRO ===== */
 
 window.gerarParticipantes = ()=>{
     participantes.innerHTML="";
-
     for(let i=0;i<qtd.value;i++){
-        participantes.innerHTML += `
-            <input class="p" placeholder="Nome ${i+1}" 
-            oninput="this.value=this.value.toUpperCase()">
-        `;
+        participantes.innerHTML+=`<input class="p">`;
     }
 };
 
 window.salvarConsorcio = async ()=>{
 
-    let nomes = [...document.querySelectorAll(".p")].map(e=>e.value);
-
-    if(nomes.length === 0){
-        alert("Preencha participantes");
-        return;
-    }
+    let nomes=[...document.querySelectorAll(".p")].map(e=>e.value);
 
     await addDoc(collection(db,"consorcios"),{
         nome:nome.value,
         pessoas:nomes,
         inicio:inicio.value,
         fim:fim.value,
-        sorteios:[],
-        uid:auth.currentUser.uid
+        sorteios:[]
     });
 
     alert("Salvo!");
 
-    mostrar("dashboard");
+    setTela("dashboard");
     carregar();
 };
 
-/* ================= MESES ================= */
+/* ===== MESES ===== */
 
 function gerarMeses(i,f){
-
-    let meses=[];
+    let m=[];
     let d=new Date(i);
     let fim=new Date(f);
 
     while(d<=fim){
-        meses.push(
-            d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})
-        );
+        m.push(d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}));
         d.setMonth(d.getMonth()+1);
     }
-
-    return meses;
+    return m;
 }
 
-/* ================= TABELA ================= */
+/* ===== TABELA ===== */
 
 function renderTabela(){
 
-    let meses = gerarMeses(atual.inicio,atual.fim);
+    let meses=gerarMeses(atual.inicio,atual.fim);
 
     tabela.innerHTML="";
 
     meses.forEach((mes,i)=>{
+        let p=atual.sorteios[i]?.pessoa || "";
 
-        let pessoa = atual.sorteios[i]?.pessoa || "";
-
-        tabela.innerHTML += `
+        tabela.innerHTML+=`
         <div class="linha-tabela">
-
             <span>${mes}</span>
 
             <select onchange="salvarManual(${i},this.value)">
-                <option value="">--</option>
-                ${atual.pessoas.map(p=>
-                    `<option ${p===pessoa?"selected":""}>${p}</option>`
-                ).join("")}
+                <option></option>
+                ${atual.pessoas.map(x=>`<option ${x==p?"selected":""}>${x}</option>`).join("")}
             </select>
-
         </div>
         `;
     });
 }
 
-/* ================= SORTEIO ================= */
+/* ===== SORTEIO ===== */
 
 window.sortear = async ()=>{
+    let usados=atual.sorteios.map(s=>s.pessoa);
+    let livres=atual.pessoas.filter(p=>!usados.includes(p));
 
-    let usados = atual.sorteios.map(s=>s.pessoa);
+    if(livres.length===0) return alert("Finalizado");
 
-    let livres = atual.pessoas.filter(p=>!usados.includes(p));
+    atual.sorteios.push({
+        pessoa:livres[Math.floor(Math.random()*livres.length)]
+    });
 
-    if(livres.length === 0){
-        alert("Todos já foram sorteados");
-        return;
-    }
-
-    let i = atual.sorteios.length;
-
-    let pessoa = livres[Math.floor(Math.random()*livres.length)];
-
-    atual.sorteios[i] = { pessoa };
-
-    await salvar();
+    salvar();
 };
-
-/* ================= MANUAL ================= */
 
 window.salvarManual = async (i,pessoa)=>{
-
-    atual.sorteios[i] = { pessoa };
-
-    await salvar();
+    atual.sorteios[i]={pessoa};
+    salvar();
 };
 
-/* ================= SALVAR ================= */
-
 async function salvar(){
-
     await updateDoc(doc(db,"consorcios",atualId),{
         sorteios:atual.sorteios
     });
-
     renderTabela();
 }
 
-/* ================= RESET ================= */
+/* ===== RESET ===== */
 
 window.resetar = async ()=>{
-
-    if(!confirm("Resetar sorteio?")) return;
-
-    atual.sorteios = [];
-
-    await salvar();
+    if(!confirm("Resetar?")) return;
+    atual.sorteios=[];
+    salvar();
 };
 
-/* ================= EXCLUIR ================= */
+/* ===== EXCLUIR ===== */
 
 window.excluir = async ()=>{
-
-    if(!confirm("Excluir consórcio?")) return;
+    if(!confirm("Excluir?")) return;
 
     await deleteDoc(doc(db,"consorcios",atualId));
 
-    alert("Excluído!");
+    alert("Excluído");
 
-    mostrar("dashboard");
+    setTela("dashboard");
     carregar();
 };
 
-/* ================= EXTRATO ================= */
+/* ===== EXTRATO ===== */
 
 window.gerarImagem = async ()=>{
 
     tituloImagem.innerText = atual.nome;
-
     listaImagem.innerHTML="";
 
     atual.sorteios.forEach((s,i)=>{
-        listaImagem.innerHTML += `
-            <div>${s.mes || (i+1)+"º mês"} → <b>${s.pessoa}</b></div>
+        listaImagem.innerHTML+=`
+            <div>${i+1}º mês → <b>${s.pessoa}</b></div>
         `;
     });
 
-    areaImagem.classList.remove("hidden");
+    areaImagem.style.display="block";
 
-    let canvas = await html2canvas(areaImagem);
+    let canvas=await html2canvas(areaImagem);
 
-    areaImagem.classList.add("hidden");
+    areaImagem.style.display="none";
 
     let link=document.createElement("a");
     link.download="extrato.png";
@@ -313,7 +234,7 @@ window.gerarImagem = async ()=>{
     link.click();
 };
 
-/* ================= NAV ================= */
+/* ===== NAV ===== */
 
-window.abrirCadastro = ()=>mostrar("cadastro");
-window.voltar = ()=>mostrar("dashboard");
+window.abrirCadastro=()=>setTela("cadastro");
+window.voltar=()=>setTela("dashboard");
