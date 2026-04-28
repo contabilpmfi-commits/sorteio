@@ -13,6 +13,7 @@ import {
   query,
   where,
   doc,
+  getDoc,
   updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -29,7 +30,7 @@ window.login = async ()=>{
     try{
         await signInWithEmailAndPassword(auth, email.value, senha.value);
     }catch(err){
-        alert("Erro: " + err.code);
+        alert(err.code);
     }
 };
 
@@ -44,7 +45,7 @@ onAuthStateChanged(auth,(u)=>{
     }
 });
 
-/* ================= PARTICIPANTES ================= */
+/* ================= GERAR PARTICIPANTES ================= */
 window.gerarParticipantes = ()=>{
     participantes.innerHTML="";
     for(let i=0;i<qtd.value;i++){
@@ -66,7 +67,7 @@ window.salvarConsorcio = async ()=>{
         sorteados:[]
     });
 
-    alert("Consórcio salvo!");
+    alert("Salvo!");
 
     mostrar("dashboard");
     carregarConsorcios();
@@ -75,15 +76,17 @@ window.salvarConsorcio = async ()=>{
 /* ================= LISTAR ================= */
 async function carregarConsorcios(){
 
-    let q=query(collection(db,"consorcios"),
-        where("uid","==",auth.currentUser.uid));
+    let q = query(
+        collection(db,"consorcios"),
+        where("uid","==",auth.currentUser.uid)
+    );
 
-    let snap=await getDocs(q);
+    let snap = await getDocs(q);
 
     listaConsorcios.innerHTML="";
 
     snap.forEach(docSnap=>{
-        let d=docSnap.data();
+        let d = docSnap.data();
 
         listaConsorcios.innerHTML+=`
             <div class="item">
@@ -102,20 +105,22 @@ window.abrirConsorcio = async (id)=>{
 
     atualId = id;
 
-    let snap = await getDocs(collection(db,"consorcios"));
+    const docRef = doc(db, "consorcios", id);
+    const snap = await getDoc(docRef);
 
-    snap.forEach(docSnap=>{
-        if(docSnap.id === id){
-            atual = docSnap.data();
-        }
-    });
+    if(!snap.exists()){
+        alert("Erro ao abrir");
+        return;
+    }
+
+    atual = snap.data();
 
     titulo.innerText = atual.nome;
 
     mostrar("sorteio");
 };
 
-/* ================= GERAR MESES ================= */
+/* ================= MESES ================= */
 function gerarMeses(inicio,fim){
     let meses=[];
     let d=new Date(inicio);
@@ -129,7 +134,7 @@ function gerarMeses(inicio,fim){
     return meses;
 }
 
-/* ================= SORTEAR ================= */
+/* ================= SORTEIO ================= */
 window.sortear = async ()=>{
 
     let meses = gerarMeses(atual.inicio, atual.fim);
@@ -137,60 +142,21 @@ window.sortear = async ()=>{
     let disponiveis = atual.pessoas.filter(p=>!atual.sorteados.includes(p));
 
     if(disponiveis.length === 0){
-        alert("Todos já foram sorteados!");
+        alert("Finalizado!");
         return;
     }
 
-    roleta.classList.add("girando");
+    let sorteado = disponiveis[Math.floor(Math.random()*disponiveis.length)];
+    let mes = meses[atual.sorteados.length];
 
-    let i = 0;
+    atual.sorteados.push(sorteado);
 
-    let intervalo = setInterval(()=>{
-        roleta.innerText = disponiveis[i % disponiveis.length];
-        i++;
-    }, 100);
+    nomeSorteado.innerText = sorteado;
+    mesSorteado.innerText = "Contemplado(a) em " + mes;
 
-    setTimeout(async ()=>{
-
-        clearInterval(intervalo);
-        roleta.classList.remove("girando");
-
-        let sorteado = disponiveis[Math.floor(Math.random()*disponiveis.length)];
-        let mes = meses[atual.sorteados.length];
-
-        atual.sorteados.push(sorteado);
-
-        nomeSorteado.innerText = sorteado;
-        mesSorteado.innerText = "Contemplado(a) em " + mes;
-
-        roleta.innerText = sorteado;
-
-        confetti({
-            particleCount: 150,
-            spread: 70
-        });
-
-        await updateDoc(doc(db,"consorcios",atualId),{
-            sorteados: atual.sorteados
-        });
-
-    }, 2000);
-};
-
-/* ================= EDITAR ================= */
-window.editarConsorcio = ()=>{
-    nome.value = atual.nome;
-    qtd.value = atual.pessoas.length;
-    inicio.value = atual.inicio;
-    fim.value = atual.fim;
-
-    gerarParticipantes();
-
-    document.querySelectorAll(".p").forEach((e,i)=>{
-        e.value = atual.pessoas[i];
+    await updateDoc(doc(db,"consorcios",atualId),{
+        sorteados: atual.sorteados
     });
-
-    mostrar("cadastro");
 };
 
 /* ================= NAV ================= */
