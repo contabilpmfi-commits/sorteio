@@ -141,18 +141,40 @@ window.sortear = async ()=>{
         return;
     }
 
-    let sorteado = disponiveis[Math.floor(Math.random()*disponiveis.length)];
+    roleta.classList.add("girando");
 
-    let mes = meses[atual.sorteados.length];
+    let i = 0;
 
-    atual.sorteados.push(sorteado);
+    let intervalo = setInterval(()=>{
+        roleta.innerText = disponiveis[i % disponiveis.length];
+        i++;
+    }, 100);
 
-    nomeSorteado.innerText = sorteado;
-    mesSorteado.innerText = "Contemplado(a) em " + mes;
+    setTimeout(async ()=>{
 
-    await updateDoc(doc(db,"consorcios",atualId),{
-        sorteados: atual.sorteados
-    });
+        clearInterval(intervalo);
+        roleta.classList.remove("girando");
+
+        let sorteado = disponiveis[Math.floor(Math.random()*disponiveis.length)];
+        let mes = meses[atual.sorteados.length];
+
+        atual.sorteados.push(sorteado);
+
+        nomeSorteado.innerText = sorteado;
+        mesSorteado.innerText = "Contemplado(a) em " + mes;
+
+        roleta.innerText = sorteado;
+
+        confetti({
+            particleCount: 150,
+            spread: 70
+        });
+
+        await updateDoc(doc(db,"consorcios",atualId),{
+            sorteados: atual.sorteados
+        });
+
+    }, 2000);
 };
 
 /* ================= EDITAR ================= */
