@@ -14,26 +14,34 @@ import {
   where,
   doc,
   getDoc,
-  updateDoc
+  updateDoc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* TELA */
+/* ================= TELA ================= */
+
 function mostrar(id){
-    ["login","dashboard","cadastro","sorteio"].forEach(t=>{
+    ["login","dashboard","cadastro","consorcio"].forEach(t=>{
         document.getElementById(t).classList.add("hidden");
     });
     document.getElementById(id).classList.remove("hidden");
 }
 
-/* LOGIN */
+/* ================= LOGIN ================= */
+
 window.login = async ()=>{
-    await signInWithEmailAndPassword(auth,email.value,senha.value);
+    try{
+        await signInWithEmailAndPassword(auth,email.value,senha.value);
+    }catch(e){
+        alert("Erro login: "+e.code);
+    }
 };
 
 window.logout = ()=> signOut(auth);
 
 onAuthStateChanged(auth,(u)=>{
     if(u){
+        userEmail.innerText = u.email;
         mostrar("dashboard");
         carregar();
     } else {
@@ -41,17 +49,27 @@ onAuthStateChanged(auth,(u)=>{
     }
 });
 
-/* PARTICIPANTES */
+/* ================= PARTICIPANTES ================= */
+
 window.gerarParticipantes = ()=>{
     participantes.innerHTML="";
     for(let i=0;i<qtd.value;i++){
-        participantes.innerHTML+=`<input class="p">`;
+        participantes.innerHTML+=`
+        <input class="p" placeholder="Nome ${i+1}" 
+        oninput="this.value=this.value.toUpperCase()">`;
     }
 };
 
-/* SALVAR */
+/* ================= SALVAR ================= */
+
 window.salvarConsorcio = async ()=>{
+
     let nomes=[...document.querySelectorAll(".p")].map(e=>e.value);
+
+    if(nomes.length === 0){
+        alert("Preencha participantes");
+        return;
+    }
 
     await addDoc(collection(db,"consorcios"),{
         nome:nome.value,
@@ -62,137 +80,186 @@ window.salvarConsorcio = async ()=>{
         sorteios:[]
     });
 
+    alert("Salvo!");
+
     mostrar("dashboard");
     carregar();
 };
 
-/* LISTAR */
+/* ================= LISTAR ================= */
+
+let consorcios=[];
+let atual=null;
+let atualId=null;
+
 async function carregar(){
+
+    listaConsorcios.innerHTML="";
+
     let q=query(collection(db,"consorcios"),
         where("uid","==",auth.currentUser.uid));
 
     let snap=await getDocs(q);
 
-    listaConsorcios.innerHTML="";
+    consorcios=[];
 
     snap.forEach(docSnap=>{
         let d=docSnap.data();
 
+        consorcios.push({
+            id:docSnap.id,
+            ...d
+        });
+    });
+
+    consorcios.forEach(c=>{
         listaConsorcios.innerHTML+=`
-            <div class="item">
-                ${d.nome}
-                <button onclick="abrir('${docSnap.id}')">Abrir</button>
+            <div class="card-item" onclick="abrir('${c.id}')">
+                ${c.nome}
             </div>
         `;
     });
 }
 
-/* ABRIR */
-let atual=null;
-let atualId=null;
+/* ================= ABRIR ================= */
 
 window.abrir = async (id)=>{
+
     atualId=id;
 
     let snap=await getDoc(doc(db,"consorcios",id));
     atual=snap.data();
 
-    titulo.innerText=atual.nome;
-
     if(!atual.sorteios) atual.sorteios=[];
 
-    carregarSelects();
-    render();
+    titulo.innerText=atual.nome;
 
-    mostrar("sorteio");
+    renderTabela();
+
+    mostrar("consorcio");
 };
 
-/* MESES */
+/* ================= GERAR MESES ================= */
+
 function gerarMeses(i,f){
-    let m=[];
+    let meses=[];
     let d=new Date(i);
     let fim=new Date(f);
 
     while(d<=fim){
-        m.push(d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}));
+        meses.push(
+            d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})
+        );
         d.setMonth(d.getMonth()+1);
     }
-    return m;
+
+    return meses;
 }
 
-/* SELECTS */
-function carregarSelects(){
-    manualPessoa.innerHTML="";
-    atual.pessoas.forEach(p=>{
-        manualPessoa.innerHTML+=`<option>${p}</option>`;
-    });
+/* ================= TABELA ================= */
+
+function renderTabela(){
 
     let meses=gerarMeses(atual.inicio,atual.fim);
 
-    manualMes.innerHTML="";
-    meses.forEach(m=>{
-        manualMes.innerHTML+=`<option>${m}</option>`;
-    });
-}
+    tabela.innerHTML="";
 
-/* SORTEIO */
-window.sortear = async ()=>{
-    let meses=gerarMeses(atual.inicio,atual.fim);
+    meses.forEach((mes,i)=>{
 
-    let usados=atual.sorteios.map(s=>s.pessoa);
-    let livres=atual.pessoas.filter(p=>!usados.includes(p));
+        let pessoa = atual.sorteios[i]?.pessoa || "";
 
-    if(livres.length===0) return alert("Finalizado");
+        tabela.innerHTML+=`
+        <div class="linha-tabela">
 
-    let p=livres[Math.floor(Math.random()*livres.length)];
-    let mes=meses[atual.sorteios.length];
+            <span>${mes}</span>
 
-    atual.sorteios.push({pessoa:p,mes});
+            <select onchange="salvarManual(${i},this.value)">
+                <option value="">--</option>
+                ${atual.pessoas.map(p=>
+                    `<option ${p===pessoa?"selected":""}>${p}</option>`
+                ).join("")}
+            </select>
 
-    salvar();
-};
-
-/* MANUAL */
-window.sortearManual = async ()=>{
-    atual.sorteios.push({
-        pessoa:manualPessoa.value,
-        mes:manualMes.value
-    });
-
-    salvar();
-};
-
-/* SALVAR */
-async function salvar(){
-    await updateDoc(doc(db,"consorcios",atualId),{
-        sorteios:atual.sorteios
-    });
-    render();
-}
-
-/* HISTÓRICO */
-function render(){
-    historico.innerHTML="";
-
-    atual.sorteios.forEach(s=>{
-        historico.innerHTML+=`
-            <div class="item">
-                <b>${s.mes}</b> → ${s.pessoa}
-            </div>
+        </div>
         `;
     });
 }
 
-/* IMAGEM PROFISSIONAL */
+/* ================= SORTEIO ================= */
+
+window.sortear = async ()=>{
+
+    let usados = atual.sorteios.map(s=>s.pessoa);
+
+    let livres = atual.pessoas.filter(p=>!usados.includes(p));
+
+    if(livres.length === 0){
+        alert("Todos já sorteados");
+        return;
+    }
+
+    let index = atual.sorteios.length;
+
+    let pessoa = livres[Math.floor(Math.random()*livres.length)];
+
+    atual.sorteios[index] = { pessoa };
+
+    await salvar();
+};
+
+/* ================= MANUAL ================= */
+
+window.salvarManual = async (i,pessoa)=>{
+
+    atual.sorteios[i] = { pessoa };
+
+    await salvar();
+};
+
+/* ================= SALVAR ================= */
+
+async function salvar(){
+    await updateDoc(doc(db,"consorcios",atualId),{
+        sorteios:atual.sorteios
+    });
+
+    renderTabela();
+}
+
+/* ================= RESET ================= */
+
+window.resetar = async ()=>{
+    if(!confirm("Resetar sorteio?")) return;
+
+    atual.sorteios=[];
+
+    await salvar();
+};
+
+/* ================= EXCLUIR ================= */
+
+window.excluir = async ()=>{
+    if(!confirm("Excluir consórcio?")) return;
+
+    await deleteDoc(doc(db,"consorcios",atualId));
+
+    alert("Excluído!");
+
+    mostrar("dashboard");
+    carregar();
+};
+
+/* ================= IMAGEM ================= */
+
 window.gerarImagem = async ()=>{
 
     tituloImagem.innerText = atual.nome;
 
     listaImagem.innerHTML="";
 
-    atual.sorteios.forEach(s=>{
+    atual.sorteios.forEach((s,i)=>{
         listaImagem.innerHTML += `
-            <div>📅 ${s.mes} → <b>${s.pessoa}</b></div>
+            <div>📅 ${i+1}º mês → <b>${s.pessoa}</b></div>
         `;
     });
 
@@ -208,30 +275,7 @@ window.gerarImagem = async ()=>{
     link.click();
 };
 
-/* NAV */
-window.abrirCadastro=()=>mostrar("cadastro");
-window.voltar=()=>mostrar("dashboard");
-/* RESETAR */
-window.resetar = async ()=>{
-    if(!confirm("Resetar sorteio?")) return;
+/* ================= NAV ================= */
 
-    atual.sorteios = [];
-
-    await updateDoc(doc(db,"consorcios",atualId),{
-        sorteios:[]
-    });
-
-    render();
-};
-
-/* EXCLUIR */
-window.excluir = async ()=>{
-    if(!confirm("Excluir consórcio?")) return;
-
-    await deleteDoc(doc(db,"consorcios",atualId));
-
-    alert("Excluído!");
-
-    mostrar("dashboard");
-    carregar();
-};
+window.abrirCadastro = ()=>mostrar("cadastro");
+window.voltar = ()=>mostrar("dashboard");
