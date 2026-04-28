@@ -3,9 +3,9 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-aut
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBDxaSPwNAG9o5t2EmImCyr6qQb8rySGqY",
+  apiKey: "SUA_API_KEY_AQUI",
   authDomain: "consorcio-app-fbef2.firebaseapp.com",
-  projectId: "consorcio-app-fbef2",
+  projectId: "consorcio-app-fbef2"
 };
 
 const app = initializeApp(firebaseConfig);
