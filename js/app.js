@@ -53,6 +53,7 @@ window.logout = ()=> signOut(auth);
 onAuthStateChanged(auth,(u)=>{
     if(u){
         userEmail.innerText = u.email;
+
         mostrar("dashboard");
         carregar();
     } else {
