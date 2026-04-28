@@ -3,113 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Consórcio App</title>
 
 <link rel="stylesheet" href="css/style.css">
-
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 </head>
-
 <body>
 
-<div class="card">
+<div class="app">
 
-    <img src="img/Logo.png" class="logo">
-
-    <div class="content">
-
-        <!-- LOGIN -->
-        <div id="login">
-            <h2>Login</h2>
-            <input id="email" placeholder="Email">
-            <input id="senha" type="password" placeholder="Senha">
-            <button onclick="login()">Entrar</button>
+    <!-- HEADER -->
+    <div class="header">
+        <img src="img/Logo.png">
+        <div class="user">
+            <span id="userEmail"></span>
+            <button onclick="logout()">⏻</button>
         </div>
+    </div>
 
-        <!-- DASHBOARD -->
-        <div id="dashboard" class="hidden">
+    <!-- LOGIN -->
+    <div id="login" class="tela center">
+        <h2>Login</h2>
+        <input id="email" placeholder="Email">
+        <input id="senha" type="password" placeholder="Senha">
+        <button onclick="login()">Entrar</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="tela hidden">
+
+        <div class="topo">
             <h2>Consórcios</h2>
-
-            <button onclick="abrirCadastro()">+ Novo</button>
-
-            <div id="listaConsorcios"></div>
-
-            <button onclick="logout()">Sair</button>
+            <button class="mini" onclick="abrirCadastro()">+ Novo</button>
         </div>
 
-        <!-- CADASTRO -->
-        <div id="cadastro" class="hidden">
-
-            <h3>Novo Consórcio</h3>
-
-            <input id="nome" placeholder="Nome do consórcio">
-            <input id="qtd" type="number" placeholder="Quantidade de participantes">
-            <input id="inicio" type="date">
-            <input id="fim" type="date">
-
-            <button onclick="gerarParticipantes()">Gerar participantes</button>
-
-            <div id="participantes"></div>
-
-            <button onclick="salvarConsorcio()">Salvar</button>
-            <button onclick="voltar()">Voltar</button>
-
-        </div>
-
-        <!-- SORTEIO -->
-        <div id="sorteio" class="hidden">
-
-            <h2 id="titulo"></h2>
-
-            <!-- CONTROLES -->
-            <div class="bloco">
-
-                <label>Participante</label>
-                <select id="manualPessoa"></select>
-
-                <label>Mês</label>
-                <select id="manualMes"></select>
-
-                <button onclick="sortear()">🎲 Sortear</button>
-                <button onclick="sortearManual()">✍️ Manual</button>
-
-            </div>
-
-            <!-- AÇÕES -->
-            <div class="acoes">
-                <button onclick="resetar()">🔄 Resetar</button>
-                <button onclick="excluir()">🗑️ Excluir</button>
-            </div>
-
-            <!-- HISTÓRICO -->
-            <div class="bloco">
-                <h3>Histórico</h3>
-                <div id="historico"></div>
-            </div>
-
-            <button onclick="gerarImagem()">📸 Gerar extrato</button>
-            <button onclick="voltar()">Voltar</button>
-
-        </div>
+        <div id="listaConsorcios"></div>
 
     </div>
 
-</div>
+    <!-- CADASTRO -->
+    <div id="cadastro" class="tela hidden">
 
-<!-- AREA PARA GERAR IMAGEM -->
-<div id="areaImagem" class="hidden extrato-img">
+        <h3>Novo Consórcio</h3>
 
-    <img src="img/Logo.png" class="logo-img">
+        <input id="nome" placeholder="Nome">
+        <input id="qtd" type="number" placeholder="Qtd">
+        <input id="inicio" type="date">
+        <input id="fim" type="date">
 
-    <h2>Resultado do Sorteio</h2>
+        <button onclick="gerarParticipantes()">Gerar participantes</button>
 
-    <h3 id="tituloImagem"></h3>
+        <div id="participantes"></div>
 
-    <div id="listaImagem"></div>
+        <button onclick="salvarConsorcio()">Salvar</button>
+        <button onclick="voltar()">Voltar</button>
 
-    <p class="rodape">Gerado automaticamente</p>
+    </div>
+
+    <!-- CONSÓRCIO -->
+    <div id="consorcio" class="tela hidden">
+
+        <h2 id="titulo"></h2>
+
+        <!-- CONTROLES -->
+        <div class="linha">
+            <button onclick="sortear()">🎲 Sortear</button>
+            <button onclick="resetar()">🔄 Resetar</button>
+        </div>
+
+        <!-- TABELA -->
+        <div id="tabela"></div>
+
+        <!-- AÇÕES -->
+        <div class="linha">
+            <button onclick="gerarImagem()">📸 Extrato</button>
+            <button onclick="excluir()">🗑️ Excluir</button>
+        </div>
+
+        <button onclick="voltar()">Voltar</button>
+
+    </div>
 
 </div>
 
