@@ -59,20 +59,21 @@ input:focus, select:focus {
 /* BOTÃO (CORRIGIDO) */
 button {
     width:100%;
-    padding:10px;
+    padding:8px;
     border:none;
-    border-radius:20px;
+    border-radius:12px;
     background: linear-gradient(45deg,#ff4d6d,#ff758f);
     color:white;
-    font-weight:bold;
-    margin-top:8px;
+    font-weight:600;
+    font-size:14px;
+    margin-top:6px;
     cursor:pointer;
     transition:0.2s;
 }
 
-/* HOVER */
 button:hover {
-    transform:scale(1.02);
+    transform: translateY(-2px);
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
 }
 
 /* AÇÕES (RESETAR / EXCLUIR) */
