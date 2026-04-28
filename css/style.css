@@ -11,62 +11,74 @@ body {
 /* CARD */
 .card {
     background:white;
-    padding:30px;
+    padding:20px;
     border-radius:20px;
     width:100%;
-    max-width:380px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    max-width:360px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
 }
 
 /* LOGO */
 .logo {
-    width:100px;
+    width:90px;
     display:block;
-    margin:0 auto 15px;
+    margin:0 auto 10px;
 }
 
 /* INPUT */
 input, select {
     width:100%;
-    padding:12px;
-    margin:10px 0;
-    border-radius:10px;
+    padding:10px;
+    margin:6px 0;
+    border-radius:8px;
     border:1px solid #ddd;
 }
 
 /* BOTÃO */
 button {
     width:100%;
-    padding:12px;
+    padding:10px;
     border:none;
-    border-radius:25px;
+    border-radius:20px;
     background: linear-gradient(45deg,#ff4d6d,#ff758f);
     color:white;
     font-weight:bold;
-    margin-top:10px;
+    margin-top:6px;
     cursor:pointer;
 }
 
+/* BLOCO */
+.bloco {
+    background:#fafafa;
+    padding:10px;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+/* AÇÕES */
+.acoes {
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
+
+.acoes button {
+    flex:1;
+    background:#333;
+}
+
+/* LISTA */
+#historico div {
+    padding:6px;
+    border-bottom:1px solid #eee;
+}
+
+/* ESCONDER */
 .hidden {
     display:none;
 }
 
-.item {
-    background:#f5f5f5;
-    padding:10px;
-    margin-top:5px;
-    border-radius:10px;
-}
-
-.extrato {
-    background:white;
-    padding:10px;
-    border-radius:10px;
-    margin-top:10px;
-}
-
-/* ===== IMAGEM PROFISSIONAL ===== */
-
+/* IMAGEM */
 .extrato-img {
     width:400px;
     background:white;
@@ -77,21 +89,4 @@ button {
 
 .logo-img {
     width:80px;
-    margin-bottom:10px;
-}
-
-#listaImagem {
-    text-align:left;
-    margin-top:15px;
-}
-
-#listaImagem div {
-    padding:6px;
-    border-bottom:1px solid #eee;
-}
-
-.rodape {
-    margin-top:15px;
-    font-size:12px;
-    color:#888;
 }
